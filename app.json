@@ -3,9 +3,6 @@
     "name": "bolt-expo-nativewind",
     "slug": "bolt-expo-nativewind",
     "version": "1.0.0",
-    "experiments": {
-      "baseUrl": "/numbers/"
-    },
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "myapp",
@@ -21,6 +18,7 @@
     },
     "plugins": ["expo-router", "expo-font", "expo-web-browser"],
     "experiments": {
+      "baseUrl": "/numbers/",
       "typedRoutes": true
     }
   }
