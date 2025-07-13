@@ -25,6 +25,7 @@ export default function GameScreen() {
   const [strikes, setStrikes] = useState(0);
   const [level, setLevel] = useState(1);
   const [combo, setCombo] = useState(0);
+  const [bestCombo, setBestCombo] = useState(0); // Track best combo of the session
   const [problem, setProblem] = useState<{ question: string; answer: number }>({ question: '', answer: 0 });
   const [options, setOptions] = useState<number[]>([]);
   const [timeLeft, setTimeLeft] = useState(5); // Initialize with default, will be updated when timeLimit changes
@@ -147,7 +148,12 @@ export default function GameScreen() {
       const points = 150 + comboBonus + levelBonus + timeBonus;
       
       setScore(prev => prev + points);
-      setCombo(prev => prev + 1);
+      setCombo(prev => {
+        const newCombo = prev + 1;
+        // Update best combo if current combo is higher
+        setBestCombo(currentBest => Math.max(currentBest, newCombo));
+        return newCombo;
+      });
       
       // Combo glow effect
       if (combo > 0 && combo % 5 === 0) {
@@ -198,7 +204,11 @@ export default function GameScreen() {
       }
       return newStrikes;
     });
-    setCombo(0);
+    setCombo(prev => {
+      // Update best combo before resetting
+      setBestCombo(currentBest => Math.max(currentBest, prev));
+      return 0;
+    });
     
     // Strike shake animation
     strikeShake.value = withSequence(
@@ -279,7 +289,7 @@ export default function GameScreen() {
           <Text style={styles.gameOverTitle}>Game Over!</Text>
           <Text style={styles.finalScore}>Final Score: {score.toLocaleString()}</Text>
           <Text style={styles.levelReached}>Level Reached: {level}</Text>
-          <Text style={styles.comboReached}>Best Combo: {combo}</Text>
+          <Text style={styles.comboReached}>Best Combo: {bestCombo}</Text>
           
           <TouchableOpacity
             style={styles.playAgainButton}
@@ -289,6 +299,8 @@ export default function GameScreen() {
               setStrikes(0);
               setLevel(1);
               setCombo(0);
+              setBestCombo(0); // Reset best combo for new game
+              setIsGameActive(true); // Set game as active for new game
               nextProblem();
             }}
           >
