@@ -75,11 +75,11 @@ export default function HomeScreen() {
             <Brain size={50} color="white" />
           </LinearGradient>
         </Animated.View>
-        <Text style={styles.title}>Number or Trap</Text>
+        <Text style={styles.title}>Numbers Game</Text>
         <Text style={styles.subtitle}>Master Math Under Pressure</Text>
         <View style={styles.tagline}>
           <Zap size={16} color="#FFD700" />
-          <Text style={styles.taglineText}>Think Fast • Tap Smart • Survive</Text>
+          <Text style={styles.taglineText}>Think Fast • Choose Correctly • Survive</Text>
         </View>
       </View>
 
@@ -95,10 +95,6 @@ export default function HomeScreen() {
           >
             <Play size={24} color="white" fill="white" />
             <Text style={styles.playButtonText}>Start Challenge</Text>
-            <View style={styles.playButtonSubtext}>
-              <Target size={12} color="rgba(255,255,255,0.8)" />
-              <Text style={styles.playSubtext}>Quiz Mode</Text>
-            </View>
           </LinearGradient>
         </TouchableOpacity>
 
