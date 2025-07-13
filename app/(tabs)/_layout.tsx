@@ -30,6 +30,12 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="difficulty"
+        options={{
+          href: null, // Hide from tab bar
+        }}
+      />
+      <Tabs.Screen
         name="game"
         options={{
           title: 'Play',

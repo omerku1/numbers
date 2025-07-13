@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Switch, ScrollView } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Settings, Volume2, VolumeX, Zap, Shield, Info, User, ChartBar as BarChart3, Gamepad2, Clock } from 'lucide-react-native';
+import { Settings, Volume2, VolumeX, Zap, Shield, Info, User, ChartBar as BarChart3, Gamepad2 } from 'lucide-react-native';
 import Animated, { 
   useSharedValue, 
   useAnimatedStyle, 
@@ -9,12 +9,17 @@ import Animated, {
   withTiming,
   interpolate
 } from 'react-native-reanimated';
+import { useSettings } from '@/hooks/useSettings';
 
 export default function SettingsScreen() {
-  const [soundEnabled, setSoundEnabled] = useState(true);
-  const [hapticsEnabled, setHapticsEnabled] = useState(true);
-  const [notifications, setNotifications] = useState(false);
-  const [timeLimit, setTimeLimit] = useState(5); // 5 seconds default
+  const { 
+    soundEnabled, 
+    setSoundEnabled, 
+    hapticsEnabled, 
+    setHapticsEnabled, 
+    notifications, 
+    setNotifications 
+  } = useSettings();
 
   const pulse = useSharedValue(0);
 
@@ -66,40 +71,6 @@ export default function SettingsScreen() {
     </LinearGradient>
   );
 
-  const TimeLimitSelector = () => (
-    <LinearGradient
-      colors={['rgba(255, 255, 255, 0.08)', 'rgba(255, 255, 255, 0.04)']}
-      style={styles.settingRow}
-    >
-      <View style={[styles.settingIcon, { backgroundColor: '#F59E0B20' }]}>
-        <Clock size={18} color="#F59E0B" />
-      </View>
-      <View style={styles.settingContent}>
-        <Text style={styles.settingTitle}>Answer Time Limit</Text>
-        <Text style={styles.settingDescription}>Time allowed per question</Text>
-      </View>
-      <View style={styles.timeLimitContainer}>
-        {[3, 5, 7, 10].map((seconds) => (
-          <TouchableOpacity
-            key={seconds}
-            style={[
-              styles.timeLimitButton,
-              timeLimit === seconds && styles.timeLimitButtonActive
-            ]}
-            onPress={() => setTimeLimit(seconds)}
-          >
-            <Text style={[
-              styles.timeLimitText,
-              timeLimit === seconds && styles.timeLimitTextActive
-            ]}>
-              {seconds}s
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </View>
-    </LinearGradient>
-  );
-
   return (
     <LinearGradient colors={['#0F0C29', '#24243e', '#302B63']} style={styles.container}>
       <View style={styles.header}>
@@ -121,8 +92,6 @@ export default function SettingsScreen() {
             <Gamepad2 size={18} color="#FFD700" />
             <Text style={styles.sectionTitle}>Game Experience</Text>
           </View>
-          
-          <TimeLimitSelector />
           
           <SettingRow
             icon={soundEnabled ? <Volume2 size={18} color="#667eea" /> : <VolumeX size={18} color="#9CA3AF" />}
@@ -346,30 +315,7 @@ const styles = StyleSheet.create({
     color: 'rgba(255, 255, 255, 0.7)',
     lineHeight: 16,
   },
-  timeLimitContainer: {
-    flexDirection: 'row',
-    gap: 6,
-  },
-  timeLimitButton: {
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 8,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.2)',
-  },
-  timeLimitButtonActive: {
-    backgroundColor: 'rgba(102, 126, 234, 0.3)',
-    borderColor: '#667eea',
-  },
-  timeLimitText: {
-    fontSize: 12,
-    color: 'rgba(255, 255, 255, 0.8)',
-    fontWeight: '600',
-  },
-  timeLimitTextActive: {
-    color: '#667eea',
-  },
+
   statsGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',

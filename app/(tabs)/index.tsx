@@ -87,7 +87,7 @@ export default function HomeScreen() {
       <View style={styles.menuContainer}>
         <TouchableOpacity
           style={styles.playButton}
-          onPress={() => router.push('/game')}
+          onPress={() => router.push('/difficulty')}
         >
           <LinearGradient
             colors={['#667eea', '#764ba2']}
