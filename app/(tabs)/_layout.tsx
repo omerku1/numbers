@@ -1,7 +1,10 @@
 import { Tabs } from 'expo-router';
 import { Chrome as Home, Trophy, Settings, Play } from 'lucide-react-native';
+import { useSettings } from '@/hooks/useSettings';
 
 export default function TabLayout() {
+  const { isGameActive } = useSettings();
+
   return (
     <Tabs
       screenOptions={{
@@ -12,6 +15,7 @@ export default function TabLayout() {
           height: 70,
           paddingBottom: 10,
           paddingTop: 10,
+          display: isGameActive ? 'none' : 'flex', // Hide tab bar during active game
         },
         tabBarActiveTintColor: '#6366F1',
         tabBarInactiveTintColor: '#9CA3AF',
