@@ -9,6 +9,8 @@ interface SettingsContextType {
   setHapticsEnabled: (enabled: boolean) => void;
   notifications: boolean;
   setNotifications: (enabled: boolean) => void;
+  isGameActive: boolean;
+  setIsGameActive: (active: boolean) => void;
 }
 
 const SettingsContext = createContext<SettingsContextType | undefined>(undefined);
@@ -18,6 +20,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [hapticsEnabled, setHapticsEnabled] = useState(true);
   const [notifications, setNotifications] = useState(false);
+  const [isGameActive, setIsGameActive] = useState(false);
 
   return (
     <SettingsContext.Provider
@@ -30,6 +33,8 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
         setHapticsEnabled,
         notifications,
         setNotifications,
+        isGameActive,
+        setIsGameActive,
       }}
     >
       {children}

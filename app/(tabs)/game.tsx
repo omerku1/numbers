@@ -11,7 +11,7 @@ import Animated, {
   withSpring,
 } from 'react-native-reanimated';
 import { useRouter } from 'expo-router';
-import { Heart, Star, Zap, X, Clock } from 'lucide-react-native';
+import { Heart, Star, Zap, X, Clock, ArrowLeft } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import { useSettings } from '@/hooks/useSettings';
 
@@ -19,7 +19,7 @@ const { width } = Dimensions.get('window');
 
 export default function GameScreen() {
   const router = useRouter();
-  const { timeLimit } = useSettings();
+  const { timeLimit, setIsGameActive } = useSettings();
   const [gameState, setGameState] = useState<'playing' | 'gameOver'>('playing');
   const [score, setScore] = useState(0);
   const [strikes, setStrikes] = useState(0);
@@ -249,6 +249,7 @@ export default function GameScreen() {
   // Initialize first problem
   useEffect(() => {
     nextProblem();
+    setIsGameActive(true); // Set game as active when starting
   }, []);
 
   // Cleanup timer on unmount
@@ -257,8 +258,16 @@ export default function GameScreen() {
       if (timerRef.current) {
         clearTimeout(timerRef.current);
       }
+      setIsGameActive(false); // Clear game active state on unmount
     };
   }, []);
+
+  // Set game as inactive when game over
+  useEffect(() => {
+    if (gameState === 'gameOver') {
+      setIsGameActive(false);
+    }
+  }, [gameState]);
 
   if (gameState === 'gameOver') {
     return (
@@ -305,6 +314,16 @@ export default function GameScreen() {
   return (
     <LinearGradient colors={['#0F0C29', '#24243e', '#302B63']} style={styles.container}>
       <View style={styles.header}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => {
+            setIsGameActive(false);
+            router.push('/');
+          }}
+        >
+          <ArrowLeft size={20} color="#9CA3AF" />
+        </TouchableOpacity>
+        
         <View style={styles.gameInfo}>
           <Animated.View style={[styles.strikesContainer, strikeAnimatedStyle]}>
             {[...Array(maxStrikes)].map((_, i) => (
@@ -378,10 +397,25 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingBottom: 20,
   },
+  backButton: {
+    position: 'absolute',
+    top: 0,
+    left: 20,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+    zIndex: 1,
+  },
   gameInfo: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    marginTop: 50, // Add space for back button
   },
   strikesContainer: {
     flexDirection: 'row',
