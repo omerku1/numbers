@@ -11,14 +11,14 @@ import Animated, {
   withSpring,
 } from 'react-native-reanimated';
 import { useRouter } from 'expo-router';
-import { Pause, Heart, Star, Zap, X, Clock } from 'lucide-react-native';
+import { Heart, Star, Zap, X, Clock } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 
 const { width } = Dimensions.get('window');
 
 export default function GameScreen() {
   const router = useRouter();
-  const [gameState, setGameState] = useState<'playing' | 'paused' | 'gameOver'>('playing');
+  const [gameState, setGameState] = useState<'playing' | 'gameOver'>('playing');
   const [score, setScore] = useState(0);
   const [strikes, setStrikes] = useState(0);
   const [level, setLevel] = useState(1);
@@ -322,12 +322,6 @@ export default function GameScreen() {
             )}
           </Animated.View>
           
-          <TouchableOpacity
-            style={styles.pauseButton}
-            onPress={() => setGameState(gameState === 'playing' ? 'paused' : 'playing')}
-          >
-            <Pause size={18} color="#9CA3AF" />
-          </TouchableOpacity>
         </View>
       </View>
 
@@ -365,28 +359,6 @@ export default function GameScreen() {
           ))}
         </View>
       </View>
-
-      {gameState === 'paused' && (
-        <View style={styles.pauseOverlay}>
-          <LinearGradient
-            colors={['rgba(0, 0, 0, 0.9)', 'rgba(0, 0, 0, 0.7)']}
-            style={styles.pauseGradient}
-          >
-            <Text style={styles.pauseText}>Game Paused</Text>
-            <TouchableOpacity
-              style={styles.resumeButton}
-              onPress={() => setGameState('playing')}
-            >
-              <LinearGradient
-                colors={['#667eea', '#764ba2']}
-                style={styles.resumeGradient}
-              >
-                <Text style={styles.resumeText}>Resume</Text>
-              </LinearGradient>
-            </TouchableOpacity>
-          </LinearGradient>
-        </View>
-      )}
     </LinearGradient>
   );
 }
@@ -443,16 +415,6 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontWeight: 'bold',
     color: '#FFD700',
-  },
-  pauseButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.2)',
   },
   gameArea: {
     flex: 1,
@@ -546,40 +508,6 @@ const styles = StyleSheet.create({
     textShadowColor: 'rgba(0, 0, 0, 0.3)',
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 2,
-  },
-  pauseOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-  },
-  pauseGradient: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  pauseText: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: 'white',
-    marginBottom: 30,
-    textShadowColor: 'rgba(0, 0, 0, 0.5)',
-    textShadowOffset: { width: 0, height: 2 },
-    textShadowRadius: 4,
-  },
-  resumeButton: {
-    borderRadius: 20,
-    overflow: 'hidden',
-  },
-  resumeGradient: {
-    paddingHorizontal: 30,
-    paddingVertical: 12,
-  },
-  resumeText: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: 'white',
   },
   gameOverContainer: {
     flex: 1,
