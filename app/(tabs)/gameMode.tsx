@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
-import { Brain, Zap, Target, Crown, ArrowLeft, Clock } from 'lucide-react-native';
+import { Brain, Clock, BookOpen, ArrowLeft, Zap, Target } from 'lucide-react-native';
 import Animated, { 
   useSharedValue, 
   useAnimatedStyle, 
@@ -15,99 +15,32 @@ import { useSettings } from '@/hooks/useSettings';
 
 const { width } = Dimensions.get('window');
 
-const getDifficultyOptions = (gameMode: 'timeLimit' | 'wordProblem') => {
-  if (gameMode === 'wordProblem') {
-    return [
-      {
-        id: 'easy',
-        title: 'Easy',
-        description: 'Basic word problems',
-        subtitle: 'Simple percentages, basic math',
-        timeLimit: 20,
-        colors: ['#10B981', '#059669'] as const,
-        icon: Brain,
-        iconColor: '#10B981',
-      },
-      {
-        id: 'medium',
-        title: 'Medium',
-        description: 'Intermediate scenarios',
-        subtitle: 'Fractions, averages, money',
-        timeLimit: 15,
-        colors: ['#F59E0B', '#D97706'] as const,
-        icon: Zap,
-        iconColor: '#F59E0B',
-      },
-      {
-        id: 'hard',
-        title: 'Hard',
-        description: 'Complex problems',
-        subtitle: 'Ratios, advanced percentages',
-        timeLimit: 12,
-        colors: ['#EF4444', '#DC2626'] as const,
-        icon: Target,
-        iconColor: '#EF4444',
-      },
-      {
-        id: 'legend',
-        title: 'Legend',
-        description: 'Expert level',
-        subtitle: 'Multi-step problems, algebra',
-        timeLimit: 10,
-        colors: ['#8B5CF6', '#7C3AED'] as const,
-        icon: Crown,
-        iconColor: '#8B5CF6',
-      },
-    ];
-  } else {
-    return [
-      {
-        id: 'easy',
-        title: 'Easy',
-        description: '7 seconds per question',
-        subtitle: 'Basic operations',
-        timeLimit: 7,
-        colors: ['#10B981', '#059669'] as const,
-        icon: Brain,
-        iconColor: '#10B981',
-      },
-      {
-        id: 'medium',
-        title: 'Medium',
-        description: '5 seconds per question',
-        subtitle: 'Mixed operations',
-        timeLimit: 5,
-        colors: ['#F59E0B', '#D97706'] as const,
-        icon: Zap,
-        iconColor: '#F59E0B',
-      },
-      {
-        id: 'hard',
-        title: 'Hard',
-        description: '3 seconds per question',
-        subtitle: 'Quick calculations',
-        timeLimit: 3,
-        colors: ['#EF4444', '#DC2626'] as const,
-        icon: Target,
-        iconColor: '#EF4444',
-      },
-      {
-        id: 'legend',
-        title: 'Legend',
-        description: '2 seconds per question',
-        subtitle: 'Lightning fast',
-        timeLimit: 2,
-        colors: ['#8B5CF6', '#7C3AED'] as const,
-        icon: Crown,
-        iconColor: '#8B5CF6',
-      },
-    ];
-  }
-};
+const gameModes = [
+  {
+    id: 'timeLimit',
+    title: 'Time Limit',
+    description: 'Solve math problems against the clock',
+    subtitle: 'Quick calculations under pressure',
+    colors: ['#667eea', '#764ba2'] as const,
+    icon: Clock,
+    iconColor: '#667eea',
+    features: ['Fast-paced', 'Multiple choice', 'Time pressure'],
+  },
+  {
+    id: 'wordProblem',
+    title: 'Word Problems',
+    description: 'Solve real-world math scenarios',
+    subtitle: 'Practical applications of mathematics',
+    colors: ['#10B981', '#059669'] as const,
+    icon: BookOpen,
+    iconColor: '#10B981',
+    features: ['Real-world scenarios', 'Percentage problems', 'Distance & time'],
+  },
+];
 
-export default function DifficultyScreen() {
+export default function GameModeScreen() {
   const router = useRouter();
-  const { setTimeLimit, gameMode } = useSettings();
+  const { setGameMode } = useSettings();
   
   // Floating animations
   const float1 = useSharedValue(0);
@@ -141,9 +74,9 @@ export default function DifficultyScreen() {
     transform: [{ scale: interpolate(pulse.value, [0, 1], [1, 1.05]) }],
   }));
 
-  const handleDifficultySelect = (timeLimit: number) => {
-    setTimeLimit(timeLimit);
-    router.push('/game');
+  const handleGameModeSelect = (mode: 'timeLimit' | 'wordProblem') => {
+    setGameMode(mode);
+    router.push('/difficulty');
   };
 
   return (
@@ -156,10 +89,10 @@ export default function DifficultyScreen() {
         <Text style={styles.floatingNumber}>⚡</Text>
       </Animated.View>
       <Animated.View style={[styles.floatingElement, styles.element2, floatingStyle2]}>
-        <Text style={styles.floatingNumber}>🎯</Text>
+        <Text style={styles.floatingNumber}>📚</Text>
       </Animated.View>
       <Animated.View style={[styles.floatingElement, styles.element3, floatingStyle3]}>
-        <Text style={styles.floatingNumber}>👑</Text>
+        <Text style={styles.floatingNumber}>🎯</Text>
       </Animated.View>
 
       {/* Header */}
@@ -180,37 +113,40 @@ export default function DifficultyScreen() {
           </LinearGradient>
         </Animated.View>
         
-        <Text style={styles.title}>Choose Difficulty</Text>
-        <Text style={styles.subtitle}>Select your challenge level</Text>
+        <Text style={styles.title}>Choose Game Mode</Text>
+        <Text style={styles.subtitle}>Select your preferred challenge type</Text>
       </View>
 
-      {/* Difficulty Options */}
-      <View style={styles.difficultyContainer}>
-        {getDifficultyOptions(gameMode).map((option, index) => {
-          const IconComponent = option.icon;
+      {/* Game Mode Options */}
+      <View style={styles.modeContainer}>
+        {gameModes.map((mode) => {
+          const IconComponent = mode.icon;
           return (
             <TouchableOpacity
-              key={option.id}
-              style={styles.difficultyButton}
-              onPress={() => handleDifficultySelect(option.timeLimit)}
+              key={mode.id}
+              style={styles.modeButton}
+              onPress={() => handleGameModeSelect(mode.id as 'timeLimit' | 'wordProblem')}
             >
               <LinearGradient
-                colors={option.colors}
-                style={styles.difficultyGradient}
+                colors={mode.colors}
+                style={styles.modeGradient}
               >
-                <View style={styles.difficultyContent}>
-                  <View style={styles.difficultyIcon}>
-                    <IconComponent size={28} color="white" />
+                <View style={styles.modeContent}>
+                  <View style={styles.modeIcon}>
+                    <IconComponent size={32} color="white" />
                   </View>
-                  <View style={styles.difficultyText}>
-                    <Text style={styles.difficultyTitle}>{option.title}</Text>
-                    <View style={styles.timeInfo}>
-                      <Clock size={14} color="rgba(255, 255, 255, 0.8)" />
-                      <Text style={styles.timeText}>{option.description}</Text>
+                  <View style={styles.modeText}>
+                    <Text style={styles.modeTitle}>{mode.title}</Text>
+                    <Text style={styles.modeDescription}>{mode.description}</Text>
+                    <Text style={styles.modeSubtitle}>{mode.subtitle}</Text>
+                    <View style={styles.featuresContainer}>
+                      {mode.features.map((feature, index) => (
+                        <View key={index} style={styles.featureItem}>
+                          <Target size={12} color="rgba(255, 255, 255, 0.8)" />
+                          <Text style={styles.featureText}>{feature}</Text>
+                        </View>
+                      ))}
                     </View>
-                    {option.subtitle && (
-                      <Text style={styles.difficultySubtitle}>{option.subtitle}</Text>
-                    )}
                   </View>
                 </View>
               </LinearGradient>
@@ -221,7 +157,7 @@ export default function DifficultyScreen() {
 
       {/* Footer */}
       <View style={styles.footer}>
-        <Text style={styles.footerText}>Choose wisely - the challenge awaits!</Text>
+        <Text style={styles.footerText}>Choose your adventure!</Text>
       </View>
     </LinearGradient>
   );
@@ -302,76 +238,77 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: 16,
-    color: 'rgba(255, 255, 255, 0.8)',
+    color: 'rgba(255, 255, 255, 0.7)',
     textAlign: 'center',
   },
-  difficultyContainer: {
+  modeContainer: {
     flex: 1,
-    gap: 16,
+    gap: 20,
   },
-  difficultyButton: {
-    height: 80,
+  modeButton: {
     borderRadius: 20,
     overflow: 'hidden',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
+    shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 5,
+    shadowRadius: 16,
+    elevation: 8,
   },
-  difficultyGradient: {
-    flex: 1,
-    paddingHorizontal: 20,
-    paddingVertical: 16,
+  modeGradient: {
+    padding: 20,
   },
-  difficultyContent: {
+  modeContent: {
     flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
+    alignItems: 'flex-start',
+    gap: 16,
   },
-  difficultyIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+  modeIcon: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
     backgroundColor: 'rgba(255, 255, 255, 0.2)',
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 16,
+    flexShrink: 0,
   },
-  difficultyText: {
+  modeText: {
     flex: 1,
   },
-  difficultyTitle: {
-    fontSize: 20,
+  modeTitle: {
+    fontSize: 24,
     fontWeight: 'bold',
     color: 'white',
     marginBottom: 4,
-    textShadowColor: 'rgba(0, 0, 0, 0.3)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 2,
   },
-  timeInfo: {
+  modeDescription: {
+    fontSize: 16,
+    color: 'rgba(255, 255, 255, 0.9)',
+    marginBottom: 2,
+  },
+  modeSubtitle: {
+    fontSize: 14,
+    color: 'rgba(255, 255, 255, 0.7)',
+    marginBottom: 12,
+    fontStyle: 'italic',
+  },
+  featuresContainer: {
+    gap: 6,
+  },
+  featureItem: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
   },
-  timeText: {
-    fontSize: 14,
-    color: 'rgba(255, 255, 255, 0.8)',
-    fontWeight: '500',
-  },
-  difficultySubtitle: {
+  featureText: {
     fontSize: 12,
-    color: 'rgba(255, 255, 255, 0.7)',
-    marginTop: 2,
-    fontStyle: 'italic',
+    color: 'rgba(255, 255, 255, 0.8)',
   },
   footer: {
     alignItems: 'center',
     paddingBottom: 20,
   },
   footerText: {
-    fontSize: 12,
+    fontSize: 14,
     color: 'rgba(255, 255, 255, 0.6)',
     fontStyle: 'italic',
   },
