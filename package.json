@@ -43,6 +43,7 @@
     "react-native-web": "^0.20.0",
     "react-native-webview": "13.13.5"
   },
+  "homepage": "https://omerku1.github.io/numbers",
   "devDependencies": {
     "@babel/core": "^7.25.2",
     "@types/react": "~19.0.10",
