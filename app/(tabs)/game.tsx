@@ -139,10 +139,10 @@ export default function GameScreen() {
         answer = averageResult.answer;
         break;
       
-      case 'ratio':
-        const ratioResult = generateRatioProblem(difficulty);
-        question = ratioResult.question;
-        answer = ratioResult.answer;
+      case 'speed':
+        const speedResult = generateSpeedProblem(difficulty);
+        question = speedResult.question;
+        answer = speedResult.answer;
         break;
       
       case 'algebra':
@@ -189,11 +189,11 @@ export default function GameScreen() {
       case 'easy':
         return ['percentage', 'distance', 'money', 'fraction'];
       case 'medium':
-        return ['percentage', 'distance', 'money', 'fraction', 'average', 'ratio'];
+        return ['percentage', 'distance', 'money', 'fraction', 'average', 'speed'];
       case 'hard':
-        return ['percentage', 'distance', 'money', 'fraction', 'average', 'ratio', 'algebra', 'geometry'];
+        return ['percentage', 'distance', 'money', 'fraction', 'average', 'speed', 'algebra', 'geometry'];
       case 'legend':
-        return ['percentage', 'distance', 'money', 'fraction', 'average', 'ratio', 'algebra', 'geometry', 'probability', 'sequence'];
+        return ['percentage', 'distance', 'money', 'fraction', 'average', 'speed', 'algebra', 'geometry', 'probability', 'sequence'];
       default:
         return ['percentage', 'distance', 'money', 'fraction'];
     }
@@ -261,28 +261,37 @@ export default function GameScreen() {
 
   const generateDistanceProblem = (difficulty: string) => {
     let speed, distance;
+    const decimalTypes = [0.25, 0.5, 0.75]; // Only allow .25, .5, .75 decimals
+    const decimalType = decimalTypes[Math.floor(Math.random() * decimalTypes.length)];
+    
     switch (difficulty) {
       case 'easy':
-        speed = Math.floor(Math.random() * 5) + 2; // 2 to 7 km/h
-        distance = Math.floor(Math.random() * 15) + 5; // 5 to 20 km
+        speed = Math.floor(Math.random() * 6) + 2; // 2 to 7 km/h
+        const easyWholeHours = Math.floor(Math.random() * 4) + 1; // 1 to 4 whole hours
+        distance = Math.round((easyWholeHours + decimalType) * speed);
         break;
       case 'medium':
-        speed = Math.floor(Math.random() * 8) + 2; // 2 to 10 km/h
-        distance = Math.floor(Math.random() * 25) + 5; // 5 to 30 km
+        speed = Math.floor(Math.random() * 8) + 3; // 3 to 10 km/h
+        const mediumWholeHours = Math.floor(Math.random() * 5) + 1; // 1 to 5 whole hours
+        distance = Math.round((mediumWholeHours + decimalType) * speed);
         break;
       case 'hard':
-        speed = Math.floor(Math.random() * 12) + 3; // 3 to 15 km/h
-        distance = Math.floor(Math.random() * 40) + 10; // 10 to 50 km
+        speed = Math.floor(Math.random() * 10) + 4; // 4 to 13 km/h
+        const hardWholeHours = Math.floor(Math.random() * 6) + 2; // 2 to 7 whole hours
+        distance = Math.round((hardWholeHours + decimalType) * speed);
         break;
       case 'legend':
-        speed = Math.floor(Math.random() * 15) + 5; // 5 to 20 km/h
-        distance = Math.floor(Math.random() * 60) + 20; // 20 to 80 km
+        speed = Math.floor(Math.random() * 12) + 6; // 6 to 17 km/h
+        const legendWholeHours = Math.floor(Math.random() * 8) + 3; // 3 to 10 whole hours
+        distance = Math.round((legendWholeHours + decimalType) * speed);
         break;
       default:
-        speed = 5;
-        distance = 10;
+        speed = 4;
+        distance = Math.round((2 + 0.5) * 4); // 2.5 hours * 4 km/h = 10 km
     }
-    const answer = Math.round(distance / speed);
+    
+    const exactAnswer = distance / speed;
+    const answer = Math.round(exactAnswer * 100) / 100; // Round to 2 decimal places
     const question = `How many hours will it take to travel ${distance} km at ${speed} km/h?`;
     return { question, answer };
   };
@@ -426,37 +435,32 @@ export default function GameScreen() {
     return { question, answer };
   };
 
-  const generateRatioProblem = (difficulty: string) => {
-    let ratio1, ratio2, totalRatio;
+  const generateSpeedProblem = (difficulty: string) => {
+    let speed, time, distance;
     switch (difficulty) {
       case 'easy':
-        ratio1 = Math.floor(Math.random() * 4) + 2;
-        ratio2 = Math.floor(Math.random() * 4) + 2;
-        totalRatio = Math.floor(Math.random() * 60) + 40;
+        speed = Math.floor(Math.random() * 8) + 3; // 3 to 10 km/h
+        time = Math.floor(Math.random() * 4) + 2; // 2 to 5 hours
         break;
       case 'medium':
-        ratio1 = Math.floor(Math.random() * 6) + 2;
-        ratio2 = Math.floor(Math.random() * 6) + 2;
-        totalRatio = Math.floor(Math.random() * 100) + 50;
+        speed = Math.floor(Math.random() * 12) + 5; // 5 to 16 km/h
+        time = Math.floor(Math.random() * 6) + 2; // 2 to 7 hours
         break;
       case 'hard':
-        ratio1 = Math.floor(Math.random() * 8) + 2;
-        ratio2 = Math.floor(Math.random() * 8) + 2;
-        totalRatio = Math.floor(Math.random() * 150) + 80;
+        speed = Math.floor(Math.random() * 15) + 8; // 8 to 22 km/h
+        time = Math.floor(Math.random() * 8) + 3; // 3 to 10 hours
         break;
       case 'legend':
-        ratio1 = Math.floor(Math.random() * 10) + 3;
-        ratio2 = Math.floor(Math.random() * 10) + 3;
-        totalRatio = Math.floor(Math.random() * 200) + 100;
+        speed = Math.floor(Math.random() * 20) + 10; // 10 to 29 km/h
+        time = Math.floor(Math.random() * 10) + 4; // 4 to 13 hours
         break;
       default:
-        ratio1 = 3;
-        ratio2 = 2;
-        totalRatio = 100;
+        speed = 10;
+        time = 3;
     }
-    const answer = Math.round((ratio1 / (ratio1 + ratio2)) * totalRatio);
-    const question = `In a ratio of ${ratio1}:${ratio2}, if the total is ${totalRatio}, what is the first part?`;
-    return { question, answer };
+    distance = speed * time;
+    const question = `If you travel at ${speed} km/h for ${time} hours, how many kilometers will you cover?`;
+    return { question, answer: distance };
   };
 
   const generateAlgebraProblem = (difficulty: string) => {
@@ -537,18 +541,51 @@ export default function GameScreen() {
 
   const generateOptions = (correctAnswer: number) => {
     const options = [correctAnswer];
-    const range = Math.max(3, Math.floor(correctAnswer * 0.3));
     
-    while (options.length < 4) {
-      let distractor;
-      if (Math.random() < 0.5) {
-        distractor = correctAnswer + (Math.floor(Math.random() * range) + 1);
-      } else {
-        distractor = correctAnswer - (Math.floor(Math.random() * range) + 1);
-      }
+    // Check if the answer is a decimal (for distance problems)
+    const isDecimal = correctAnswer % 1 !== 0;
+    
+    if (isDecimal) {
+      // For decimal answers, create options with similar decimals
+      const wholePart = Math.floor(correctAnswer);
+      const decimalPart = correctAnswer - wholePart;
       
-      if (distractor !== correctAnswer && distractor > 0 && !options.includes(distractor)) {
-        options.push(distractor);
+      // Create distractors with different decimals
+      const decimalOptions = [0.25, 0.5, 0.75];
+      const otherDecimals = decimalOptions.filter(d => d !== decimalPart);
+      
+      while (options.length < 4) {
+        let distractor;
+        if (Math.random() < 0.5) {
+          // Same whole number, different decimal
+          const randomDecimal = otherDecimals[Math.floor(Math.random() * otherDecimals.length)];
+          distractor = wholePart + randomDecimal;
+        } else {
+          // Different whole number, same or different decimal
+          const wholeDiff = Math.random() < 0.5 ? 1 : -1;
+          const randomDecimal = decimalOptions[Math.floor(Math.random() * decimalOptions.length)];
+          distractor = wholePart + wholeDiff + randomDecimal;
+        }
+        
+        if (distractor !== correctAnswer && distractor > 0 && !options.includes(distractor)) {
+          options.push(distractor);
+        }
+      }
+    } else {
+      // For whole number answers, use the original logic
+      const range = Math.max(3, Math.floor(correctAnswer * 0.3));
+      
+      while (options.length < 4) {
+        let distractor;
+        if (Math.random() < 0.5) {
+          distractor = correctAnswer + (Math.floor(Math.random() * range) + 1);
+        } else {
+          distractor = correctAnswer - (Math.floor(Math.random() * range) + 1);
+        }
+        
+        if (distractor !== correctAnswer && distractor > 0 && !options.includes(distractor)) {
+          options.push(distractor);
+        }
       }
     }
     
@@ -824,7 +861,7 @@ export default function GameScreen() {
           
           <Animated.View style={[styles.scoreContainer, comboAnimatedStyle]}>
             <Text style={styles.scoreText}>{score.toLocaleString()}</Text>
-            {combo >= 5 && (
+            {combo > 0 && (
               <View style={styles.comboContainer}>
                 <Zap size={14} color="#FFD700" />
                 <Text style={styles.comboText}>{combo}x COMBO!</Text>
