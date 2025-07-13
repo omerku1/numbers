@@ -46,6 +46,12 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="gameMode"
+        options={{
+          href: null, // Hide from tab bar
+        }}
+      />
+      <Tabs.Screen
         name="leaderboard"
         options={{
           title: 'Scores',

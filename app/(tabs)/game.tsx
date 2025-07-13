@@ -19,7 +19,7 @@ const { width } = Dimensions.get('window');
 
 export default function GameScreen() {
   const router = useRouter();
-  const { timeLimit, setIsGameActive } = useSettings();
+  const { timeLimit, gameMode, setIsGameActive } = useSettings();
   const [gameState, setGameState] = useState<'playing' | 'gameOver'>('playing');
   const [score, setScore] = useState(0);
   const [strikes, setStrikes] = useState(0);
@@ -29,6 +29,8 @@ export default function GameScreen() {
   const [problem, setProblem] = useState<{ question: string; answer: number }>({ question: '', answer: 0 });
   const [options, setOptions] = useState<number[]>([]);
   const [timeLeft, setTimeLeft] = useState(5); // Initialize with default, will be updated when timeLimit changes
+  const [answerFeedback, setAnswerFeedback] = useState<{ [key: number]: 'correct' | 'incorrect' | null }>({});
+  const [showFeedback, setShowFeedback] = useState(false);
   
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const maxStrikes = 3;
@@ -57,6 +59,14 @@ export default function GameScreen() {
   }));
 
   const generateProblem = () => {
+    if (gameMode === 'wordProblem') {
+      return generateWordProblem();
+    } else {
+      return generateTimeLimitProblem();
+    }
+  };
+
+  const generateTimeLimitProblem = () => {
     const operations = ['+', '-', '×', '÷'];
     const operation = operations[Math.floor(Math.random() * operations.length)];
     let a, b, answer, question;
@@ -92,6 +102,439 @@ export default function GameScreen() {
     return { question, answer };
   };
 
+  const generateWordProblem = () => {
+    const difficulty = getDifficultyFromTimeLimit(timeLimit);
+    const problemTypes = getProblemTypesForDifficulty(difficulty);
+    const problemType = problemTypes[Math.floor(Math.random() * problemTypes.length)];
+    let question = "", answer = 0;
+
+    switch (problemType) {
+      case 'percentage':
+        const percentageResult = generatePercentageProblem(difficulty);
+        question = percentageResult.question;
+        answer = percentageResult.answer;
+        break;
+      
+      case 'distance':
+        const distanceResult = generateDistanceProblem(difficulty);
+        question = distanceResult.question;
+        answer = distanceResult.answer;
+        break;
+      
+      case 'money':
+        const moneyResult = generateMoneyProblem(difficulty);
+        question = moneyResult.question;
+        answer = moneyResult.answer;
+        break;
+      
+      case 'fraction':
+        const fractionResult = generateFractionProblem(difficulty);
+        question = fractionResult.question;
+        answer = fractionResult.answer;
+        break;
+      
+      case 'average':
+        const averageResult = generateAverageProblem(difficulty);
+        question = averageResult.question;
+        answer = averageResult.answer;
+        break;
+      
+      case 'ratio':
+        const ratioResult = generateRatioProblem(difficulty);
+        question = ratioResult.question;
+        answer = ratioResult.answer;
+        break;
+      
+      case 'algebra':
+        const algebraResult = generateAlgebraProblem(difficulty);
+        question = algebraResult.question;
+        answer = algebraResult.answer;
+        break;
+      
+      case 'geometry':
+        const geometryResult = generateGeometryProblem(difficulty);
+        question = geometryResult.question;
+        answer = geometryResult.answer;
+        break;
+      
+      case 'probability':
+        const probabilityResult = generateProbabilityProblem(difficulty);
+        question = probabilityResult.question;
+        answer = probabilityResult.answer;
+        break;
+      
+      case 'sequence':
+        const sequenceResult = generateSequenceProblem(difficulty);
+        question = sequenceResult.question;
+        answer = sequenceResult.answer;
+        break;
+      
+      default:
+        question = "What is 50% of 100?";
+        answer = 50;
+    }
+
+    return { question, answer };
+  };
+
+  const getDifficultyFromTimeLimit = (timeLimit: number) => {
+    if (timeLimit >= 20) return 'easy';
+    if (timeLimit >= 15) return 'medium';
+    if (timeLimit >= 12) return 'hard';
+    return 'legend';
+  };
+
+  const getProblemTypesForDifficulty = (difficulty: string) => {
+    switch (difficulty) {
+      case 'easy':
+        return ['percentage', 'distance', 'money', 'fraction'];
+      case 'medium':
+        return ['percentage', 'distance', 'money', 'fraction', 'average', 'ratio'];
+      case 'hard':
+        return ['percentage', 'distance', 'money', 'fraction', 'average', 'ratio', 'algebra', 'geometry'];
+      case 'legend':
+        return ['percentage', 'distance', 'money', 'fraction', 'average', 'ratio', 'algebra', 'geometry', 'probability', 'sequence'];
+      default:
+        return ['percentage', 'distance', 'money', 'fraction'];
+    }
+  };
+
+  const generatePercentageProblem = (difficulty: string) => {
+    // Predefined percentages that work well with common numbers
+    const cleanPercentages = [10, 15, 20, 25, 30, 33, 40, 50, 60, 66, 70, 75, 80, 90];
+    
+    let percent, total;
+    switch (difficulty) {
+      case 'easy':
+        // Use simple percentages with numbers that divide evenly
+        percent = cleanPercentages[Math.floor(Math.random() * cleanPercentages.length)];
+        const easyTotals = [50, 60, 80, 100, 120, 150, 160, 200, 240, 250, 300];
+        total = easyTotals[Math.floor(Math.random() * easyTotals.length)];
+        break;
+      case 'medium':
+        percent = cleanPercentages[Math.floor(Math.random() * cleanPercentages.length)];
+        const mediumTotals = [100, 120, 150, 160, 180, 200, 240, 250, 300, 320, 360, 400, 450, 500];
+        total = mediumTotals[Math.floor(Math.random() * mediumTotals.length)];
+        break;
+      case 'hard':
+        percent = cleanPercentages[Math.floor(Math.random() * cleanPercentages.length)];
+        const hardTotals = [200, 240, 250, 300, 320, 360, 400, 450, 480, 500, 600, 640, 720, 800, 900];
+        total = hardTotals[Math.floor(Math.random() * hardTotals.length)];
+        break;
+      case 'legend':
+        percent = cleanPercentages[Math.floor(Math.random() * cleanPercentages.length)];
+        const legendTotals = [400, 450, 480, 500, 600, 640, 720, 800, 900, 960, 1000, 1200, 1280, 1440, 1600];
+        total = legendTotals[Math.floor(Math.random() * legendTotals.length)];
+        break;
+      default:
+        percent = 50;
+        total = 100;
+    }
+    
+    // Calculate the exact answer
+    const exactAnswer = (percent * total) / 100;
+    
+    // Verify the answer is a whole number
+    if (exactAnswer !== Math.floor(exactAnswer)) {
+      // If not, find a better combination that gives a whole number
+      const betterPercent = cleanPercentages[Math.floor(Math.random() * cleanPercentages.length)];
+      const betterTotal = Math.floor(Math.random() * 20 + 10) * 10; // Multiples of 10
+      const betterAnswer = (betterPercent * betterTotal) / 100;
+      
+      // Ensure it's a whole number
+      if (betterAnswer === Math.floor(betterAnswer)) {
+        const question = `What is ${betterPercent}% of ${betterTotal}?`;
+        return { question, answer: betterAnswer };
+      } else {
+        // Fallback to a guaranteed whole number
+        const fallbackPercent = 50;
+        const fallbackTotal = 200;
+        const fallbackAnswer = (fallbackPercent * fallbackTotal) / 100;
+        const question = `What is ${fallbackPercent}% of ${fallbackTotal}?`;
+        return { question, answer: fallbackAnswer };
+      }
+    }
+    
+    const question = `What is ${percent}% of ${total}?`;
+    return { question, answer: exactAnswer };
+  };
+
+  const generateDistanceProblem = (difficulty: string) => {
+    let speed, distance;
+    switch (difficulty) {
+      case 'easy':
+        speed = Math.floor(Math.random() * 5) + 2; // 2 to 7 km/h
+        distance = Math.floor(Math.random() * 15) + 5; // 5 to 20 km
+        break;
+      case 'medium':
+        speed = Math.floor(Math.random() * 8) + 2; // 2 to 10 km/h
+        distance = Math.floor(Math.random() * 25) + 5; // 5 to 30 km
+        break;
+      case 'hard':
+        speed = Math.floor(Math.random() * 12) + 3; // 3 to 15 km/h
+        distance = Math.floor(Math.random() * 40) + 10; // 10 to 50 km
+        break;
+      case 'legend':
+        speed = Math.floor(Math.random() * 15) + 5; // 5 to 20 km/h
+        distance = Math.floor(Math.random() * 60) + 20; // 20 to 80 km
+        break;
+      default:
+        speed = 5;
+        distance = 10;
+    }
+    const answer = Math.round(distance / speed);
+    const question = `How long will it take to travel ${distance} km at ${speed} km/h?`;
+    return { question, answer };
+  };
+
+  const generateMoneyProblem = (difficulty: string) => {
+    let price, discount;
+    switch (difficulty) {
+      case 'easy':
+        price = Math.floor(Math.random() * 50) + 10; // $10 to $60
+        discount = Math.floor(Math.random() * 20) + 10; // 10% to 30%
+        break;
+      case 'medium':
+        price = Math.floor(Math.random() * 90) + 10; // $10 to $100
+        discount = Math.floor(Math.random() * 30) + 10; // 10% to 40%
+        break;
+      case 'hard':
+        price = Math.floor(Math.random() * 150) + 20; // $20 to $170
+        discount = Math.floor(Math.random() * 40) + 15; // 15% to 55%
+        break;
+      case 'legend':
+        price = Math.floor(Math.random() * 200) + 50; // $50 to $250
+        discount = Math.floor(Math.random() * 50) + 20; // 20% to 70%
+        break;
+      default:
+        price = 50;
+        discount = 20;
+    }
+    const answer = Math.round(price * (1 - discount / 100));
+    const question = `A $${price} item is ${discount}% off. What is the final price?`;
+    return { question, answer };
+  };
+
+  const generateFractionProblem = (difficulty: string) => {
+    // Predefined simplified fractions to avoid ugly ones like 3/6
+    const simplifiedFractions = [
+      { num: 1, den: 2 }, // 1/2 = 50%
+      { num: 1, den: 3 }, // 1/3 ≈ 33%
+      { num: 2, den: 3 }, // 2/3 ≈ 67%
+      { num: 1, den: 4 }, // 1/4 = 25%
+      { num: 3, den: 4 }, // 3/4 = 75%
+      { num: 1, den: 5 }, // 1/5 = 20%
+      { num: 2, den: 5 }, // 2/5 = 40%
+      { num: 3, den: 5 }, // 3/5 = 60%
+      { num: 4, den: 5 }, // 4/5 = 80%
+      { num: 1, den: 6 }, // 1/6 ≈ 17%
+      { num: 5, den: 6 }, // 5/6 ≈ 83%
+      { num: 1, den: 8 }, // 1/8 = 12.5%
+      { num: 3, den: 8 }, // 3/8 = 37.5%
+      { num: 5, den: 8 }, // 5/8 = 62.5%
+      { num: 7, den: 8 }, // 7/8 = 87.5%
+    ];
+
+    let multiplier;
+    switch (difficulty) {
+      case 'easy':
+        // Use numbers divisible by common denominators (2, 3, 4, 5, 6)
+        const easyMultipliers = [10, 12, 15, 16, 18, 20, 24, 25, 30, 32, 36, 40, 45, 48, 50];
+        multiplier = easyMultipliers[Math.floor(Math.random() * easyMultipliers.length)];
+        break;
+      case 'medium':
+        // Use numbers divisible by more denominators (2, 3, 4, 5, 6, 8)
+        const mediumMultipliers = [24, 30, 32, 36, 40, 45, 48, 50, 60, 64, 72, 75, 80, 90, 96, 100];
+        multiplier = mediumMultipliers[Math.floor(Math.random() * mediumMultipliers.length)];
+        break;
+      case 'hard':
+        // Use larger numbers divisible by various denominators
+        const hardMultipliers = [60, 72, 80, 90, 96, 100, 120, 125, 128, 144, 150, 160, 180, 192, 200];
+        multiplier = hardMultipliers[Math.floor(Math.random() * hardMultipliers.length)];
+        break;
+      case 'legend':
+        // Use even larger numbers with more complex fractions
+        const legendMultipliers = [120, 144, 150, 160, 180, 192, 200, 240, 250, 256, 288, 300, 320, 360, 384, 400];
+        multiplier = legendMultipliers[Math.floor(Math.random() * legendMultipliers.length)];
+        break;
+      default:
+        multiplier = 24;
+    }
+
+    // Select a random fraction
+    const fraction = simplifiedFractions[Math.floor(Math.random() * simplifiedFractions.length)];
+    const { num: numerator, den: denominator } = fraction;
+    
+    // Calculate the exact answer (should be a whole number)
+    const answer = (numerator * multiplier) / denominator;
+    
+    // Verify the answer is a whole number
+    if (answer !== Math.floor(answer)) {
+      // If not, find a better multiplier that works with this fraction
+      const betterMultiplier = denominator * Math.floor(Math.random() * 20 + 5);
+      const betterAnswer = (numerator * betterMultiplier) / denominator;
+      const question = `What is ${numerator}/${denominator} of ${betterMultiplier}?`;
+      return { question, answer: betterAnswer };
+    }
+
+    const question = `What is ${numerator}/${denominator} of ${multiplier}?`;
+    return { question, answer };
+  };
+
+  const generateAverageProblem = (difficulty: string) => {
+    let numbers;
+    switch (difficulty) {
+      case 'easy':
+        numbers = [
+          Math.floor(Math.random() * 30) + 10,
+          Math.floor(Math.random() * 30) + 10,
+          Math.floor(Math.random() * 30) + 10
+        ];
+        break;
+      case 'medium':
+        numbers = [
+          Math.floor(Math.random() * 50) + 10,
+          Math.floor(Math.random() * 50) + 10,
+          Math.floor(Math.random() * 50) + 10,
+          Math.floor(Math.random() * 50) + 10
+        ];
+        break;
+      case 'hard':
+        numbers = [
+          Math.floor(Math.random() * 80) + 20,
+          Math.floor(Math.random() * 80) + 20,
+          Math.floor(Math.random() * 80) + 20,
+          Math.floor(Math.random() * 80) + 20,
+          Math.floor(Math.random() * 80) + 20
+        ];
+        break;
+      case 'legend':
+        numbers = [
+          Math.floor(Math.random() * 100) + 30,
+          Math.floor(Math.random() * 100) + 30,
+          Math.floor(Math.random() * 100) + 30,
+          Math.floor(Math.random() * 100) + 30,
+          Math.floor(Math.random() * 100) + 30,
+          Math.floor(Math.random() * 100) + 30
+        ];
+        break;
+      default:
+        numbers = [10, 20, 30];
+    }
+    const answer = Math.round(numbers.reduce((a, b) => a + b, 0) / numbers.length);
+    const question = `What is the average of ${numbers.join(', ')}?`;
+    return { question, answer };
+  };
+
+  const generateRatioProblem = (difficulty: string) => {
+    let ratio1, ratio2, totalRatio;
+    switch (difficulty) {
+      case 'easy':
+        ratio1 = Math.floor(Math.random() * 4) + 2;
+        ratio2 = Math.floor(Math.random() * 4) + 2;
+        totalRatio = Math.floor(Math.random() * 60) + 40;
+        break;
+      case 'medium':
+        ratio1 = Math.floor(Math.random() * 6) + 2;
+        ratio2 = Math.floor(Math.random() * 6) + 2;
+        totalRatio = Math.floor(Math.random() * 100) + 50;
+        break;
+      case 'hard':
+        ratio1 = Math.floor(Math.random() * 8) + 2;
+        ratio2 = Math.floor(Math.random() * 8) + 2;
+        totalRatio = Math.floor(Math.random() * 150) + 80;
+        break;
+      case 'legend':
+        ratio1 = Math.floor(Math.random() * 10) + 3;
+        ratio2 = Math.floor(Math.random() * 10) + 3;
+        totalRatio = Math.floor(Math.random() * 200) + 100;
+        break;
+      default:
+        ratio1 = 3;
+        ratio2 = 2;
+        totalRatio = 100;
+    }
+    const answer = Math.round((ratio1 / (ratio1 + ratio2)) * totalRatio);
+    const question = `In a ratio of ${ratio1}:${ratio2}, if the total is ${totalRatio}, what is the first part?`;
+    return { question, answer };
+  };
+
+  const generateAlgebraProblem = (difficulty: string) => {
+    let x, y, answer;
+    switch (difficulty) {
+      case 'hard':
+        x = Math.floor(Math.random() * 10) + 1;
+        y = Math.floor(Math.random() * 10) + 1;
+        answer = x * 2 + y * 3;
+        const question = `If x = ${x} and y = ${y}, what is 2x + 3y?`;
+        return { question, answer };
+      case 'legend':
+        x = Math.floor(Math.random() * 15) + 1;
+        y = Math.floor(Math.random() * 15) + 1;
+        answer = x * 3 + y * 4 - 5;
+        const question2 = `If x = ${x} and y = ${y}, what is 3x + 4y - 5?`;
+        return { question: question2, answer };
+      default:
+        answer = 10;
+        const question3 = "If x = 2 and y = 2, what is 2x + 3y?";
+        return { question: question3, answer };
+    }
+  };
+
+  const generateGeometryProblem = (difficulty: string) => {
+    let answer;
+    switch (difficulty) {
+      case 'hard':
+        const side = Math.floor(Math.random() * 10) + 5;
+        answer = side * side;
+        const question = `What is the area of a square with side length ${side}?`;
+        return { question, answer };
+      case 'legend':
+        const length = Math.floor(Math.random() * 15) + 5;
+        const width = Math.floor(Math.random() * 10) + 3;
+        answer = length * width;
+        const question2 = `What is the area of a rectangle with length ${length} and width ${width}?`;
+        return { question: question2, answer };
+      default:
+        answer = 25;
+        const question3 = "What is the area of a square with side length 5?";
+        return { question: question3, answer };
+    }
+  };
+
+  const generateProbabilityProblem = (difficulty: string) => {
+    let answer;
+    switch (difficulty) {
+      case 'legend':
+        const total = Math.floor(Math.random() * 20) + 10;
+        const favorable = Math.floor(Math.random() * (total - 1)) + 1;
+        answer = Math.round((favorable / total) * 100);
+        const question = `In a bag of ${total} marbles, ${favorable} are red. What is the probability of drawing a red marble (as a percentage)?`;
+        return { question, answer };
+      default:
+        answer = 50;
+        const question2 = "In a bag of 10 marbles, 5 are red. What is the probability of drawing a red marble (as a percentage)?";
+        return { question: question2, answer };
+    }
+  };
+
+  const generateSequenceProblem = (difficulty: string) => {
+    let answer;
+    switch (difficulty) {
+      case 'legend':
+        const start = Math.floor(Math.random() * 10) + 1;
+        const step = Math.floor(Math.random() * 5) + 2;
+        const position = Math.floor(Math.random() * 5) + 3;
+        answer = start + (step * (position - 1));
+        const question = `In the sequence ${start}, ${start + step}, ${start + step * 2}, ..., what is the ${position}th number?`;
+        return { question, answer };
+      default:
+        answer = 7;
+        const question2 = "In the sequence 1, 3, 5, 7, ..., what is the 4th number?";
+        return { question: question2, answer };
+    }
+  };
+
   const generateOptions = (correctAnswer: number) => {
     const options = [correctAnswer];
     const range = Math.max(3, Math.floor(correctAnswer * 0.3));
@@ -117,7 +560,14 @@ export default function GameScreen() {
     const newProblem = generateProblem();
     setProblem(newProblem);
     setOptions(generateOptions(newProblem.answer));
-    setTimeLeft(timeLimit);
+    
+    // Reset feedback state
+    setAnswerFeedback({});
+    setShowFeedback(false);
+    
+    // Set time based on game mode
+    const timeForProblem = gameMode === 'wordProblem' ? Math.max(15, timeLimit * 2) : timeLimit;
+    setTimeLeft(timeForProblem);
     
     // Animate problem change
     problemScale.value = withSequence(
@@ -155,6 +605,12 @@ export default function GameScreen() {
         return newCombo;
       });
       
+      // Show correct answer feedback
+      setAnswerFeedback({
+        [selectedAnswer]: 'correct'
+      });
+      setShowFeedback(true);
+      
       // Combo glow effect
       if (combo > 0 && combo % 5 === 0) {
         comboGlow.value = withSequence(
@@ -169,7 +625,11 @@ export default function GameScreen() {
       }
       
       // Move to next problem
-      setTimeout(() => nextProblem(), 500);
+      setTimeout(() => {
+        setShowFeedback(false);
+        setAnswerFeedback({});
+        nextProblem();
+      }, 800);
       
     } else {
       // Wrong answer - strike
@@ -182,6 +642,13 @@ export default function GameScreen() {
       });
       setCombo(0);
       
+      // Show answer feedback
+      setAnswerFeedback({
+        [selectedAnswer]: 'incorrect',
+        [problem.answer]: 'correct'
+      });
+      setShowFeedback(true);
+      
       // Strike shake animation
       strikeShake.value = withSequence(
         withTiming(-10, { duration: 50 }),
@@ -191,7 +658,11 @@ export default function GameScreen() {
       );
 
       // Move to next problem after wrong answer
-      setTimeout(() => nextProblem(), 1000);
+      setTimeout(() => {
+        setShowFeedback(false);
+        setAnswerFeedback({});
+        nextProblem();
+      }, 1500);
     }
   };
 
@@ -236,7 +707,8 @@ export default function GameScreen() {
       }, 1000) as unknown as NodeJS.Timeout;
 
       // Timer pulse animation when time is running low
-      if (timeLeft <= 3) {
+      const warningThreshold = gameMode === 'wordProblem' ? 5 : 3;
+      if (timeLeft <= warningThreshold) {
         timerPulse.value = withSequence(
           withTiming(1, { duration: 200 }),
           withTiming(0, { duration: 200 })
@@ -253,8 +725,9 @@ export default function GameScreen() {
 
   // Update timeLeft when timeLimit changes
   useEffect(() => {
-    setTimeLeft(timeLimit);
-  }, [timeLimit]);
+    const timeForProblem = gameMode === 'wordProblem' ? Math.max(15, timeLimit * 2) : timeLimit;
+    setTimeLeft(timeForProblem);
+  }, [timeLimit, gameMode]);
 
   // Initialize first problem
   useEffect(() => {
@@ -364,7 +837,9 @@ export default function GameScreen() {
 
       <View style={styles.gameArea}>
         <Animated.View style={[styles.problemContainer, problemAnimatedStyle]}>
-          <Text style={styles.problemText}>{problem.question} = ?</Text>
+          <Text style={[styles.problemText, gameMode === 'wordProblem' && styles.wordProblemText]}>
+            {gameMode === 'wordProblem' ? problem.question : `${problem.question} = ?`}
+          </Text>
           <View style={styles.levelBadge}>
             <Star size={12} color="#FFD700" />
             <Text style={styles.levelText}>Level {level}</Text>
@@ -372,28 +847,44 @@ export default function GameScreen() {
         </Animated.View>
 
         <Animated.View style={[styles.timerContainer, timerAnimatedStyle]}>
-          <Clock size={20} color={timeLeft <= 3 ? "#EF4444" : "#FFD700"} />
-          <Text style={[styles.timerText, { color: timeLeft <= 3 ? "#EF4444" : "#FFD700" }]}>
+          <Clock size={20} color={timeLeft <= (gameMode === 'wordProblem' ? 5 : 3) ? "#EF4444" : "#FFD700"} />
+          <Text style={[styles.timerText, { color: timeLeft <= (gameMode === 'wordProblem' ? 5 : 3) ? "#EF4444" : "#FFD700" }]}>
             {timeLeft}s
           </Text>
         </Animated.View>
 
         <View style={styles.optionsContainer}>
-          {options.map((option, index) => (
-            <TouchableOpacity
-              key={index}
-              style={styles.optionButton}
-              onPress={() => handleAnswer(option)}
-              disabled={gameState !== 'playing'}
-            >
-              <LinearGradient
-                colors={['#4C1D95', '#7C3AED', '#A855F7']}
-                style={styles.optionGradient}
+          {options.map((option, index) => {
+            const feedback = answerFeedback[option];
+            const isCorrect = feedback === 'correct';
+            const isIncorrect = feedback === 'incorrect';
+            
+            return (
+              <TouchableOpacity
+                key={index}
+                style={[
+                  styles.optionButton,
+                  isCorrect && styles.correctOption,
+                  isIncorrect && styles.incorrectOption
+                ]}
+                onPress={() => handleAnswer(option)}
+                disabled={gameState !== 'playing' || showFeedback}
               >
-                <Text style={styles.optionText}>{option}</Text>
-              </LinearGradient>
-            </TouchableOpacity>
-          ))}
+                <LinearGradient
+                  colors={
+                    isCorrect 
+                      ? ['#10B981', '#059669'] 
+                      : isIncorrect 
+                        ? ['#EF4444', '#DC2626']
+                        : ['#4C1D95', '#7C3AED', '#A855F7']
+                  }
+                  style={styles.optionGradient}
+                >
+                  <Text style={styles.optionText}>{option}</Text>
+                </LinearGradient>
+              </TouchableOpacity>
+            );
+          })}
         </View>
       </View>
     </LinearGradient>
@@ -496,6 +987,13 @@ const styles = StyleSheet.create({
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 2,
   },
+  wordProblemText: {
+    fontSize: 24,
+    lineHeight: 32,
+    textAlign: 'center',
+    paddingHorizontal: 10,
+  },
+
   levelBadge: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -560,6 +1058,24 @@ const styles = StyleSheet.create({
     textShadowColor: 'rgba(0, 0, 0, 0.3)',
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 2,
+  },
+  correctOption: {
+    borderWidth: 3,
+    borderColor: '#10B981',
+    shadowColor: '#10B981',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.8,
+    shadowRadius: 10,
+    elevation: 8,
+  },
+  incorrectOption: {
+    borderWidth: 3,
+    borderColor: '#EF4444',
+    shadowColor: '#EF4444',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.8,
+    shadowRadius: 10,
+    elevation: 8,
   },
   gameOverContainer: {
     flex: 1,

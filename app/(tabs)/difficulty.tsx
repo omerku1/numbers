@@ -15,48 +15,99 @@ import { useSettings } from '@/hooks/useSettings';
 
 const { width } = Dimensions.get('window');
 
-const difficultyOptions = [
-  {
-    id: 'easy',
-    title: 'Easy',
-    description: '7 seconds per question',
-    timeLimit: 7,
-    colors: ['#10B981', '#059669'] as const,
-    icon: Brain,
-    iconColor: '#10B981',
-  },
-  {
-    id: 'medium',
-    title: 'Medium',
-    description: '5 seconds per question',
-    timeLimit: 5,
-    colors: ['#F59E0B', '#D97706'] as const,
-    icon: Zap,
-    iconColor: '#F59E0B',
-  },
-  {
-    id: 'hard',
-    title: 'Hard',
-    description: '3 seconds per question',
-    timeLimit: 3,
-    colors: ['#EF4444', '#DC2626'] as const,
-    icon: Target,
-    iconColor: '#EF4444',
-  },
-  {
-    id: 'legend',
-    title: 'Legend',
-    description: '2 seconds per question',
-    timeLimit: 2,
-    colors: ['#8B5CF6', '#7C3AED'] as const,
-    icon: Crown,
-    iconColor: '#8B5CF6',
-  },
-];
+const getDifficultyOptions = (gameMode: 'timeLimit' | 'wordProblem') => {
+  if (gameMode === 'wordProblem') {
+    return [
+      {
+        id: 'easy',
+        title: 'Easy',
+        description: 'Basic word problems',
+        subtitle: 'Simple percentages, basic math',
+        timeLimit: 20,
+        colors: ['#10B981', '#059669'] as const,
+        icon: Brain,
+        iconColor: '#10B981',
+      },
+      {
+        id: 'medium',
+        title: 'Medium',
+        description: 'Intermediate scenarios',
+        subtitle: 'Fractions, averages, money',
+        timeLimit: 15,
+        colors: ['#F59E0B', '#D97706'] as const,
+        icon: Zap,
+        iconColor: '#F59E0B',
+      },
+      {
+        id: 'hard',
+        title: 'Hard',
+        description: 'Complex problems',
+        subtitle: 'Ratios, advanced percentages',
+        timeLimit: 12,
+        colors: ['#EF4444', '#DC2626'] as const,
+        icon: Target,
+        iconColor: '#EF4444',
+      },
+      {
+        id: 'legend',
+        title: 'Legend',
+        description: 'Expert level',
+        subtitle: 'Multi-step problems, algebra',
+        timeLimit: 10,
+        colors: ['#8B5CF6', '#7C3AED'] as const,
+        icon: Crown,
+        iconColor: '#8B5CF6',
+      },
+    ];
+  } else {
+    return [
+      {
+        id: 'easy',
+        title: 'Easy',
+        description: '7 seconds per question',
+        subtitle: 'Basic operations',
+        timeLimit: 7,
+        colors: ['#10B981', '#059669'] as const,
+        icon: Brain,
+        iconColor: '#10B981',
+      },
+      {
+        id: 'medium',
+        title: 'Medium',
+        description: '5 seconds per question',
+        subtitle: 'Mixed operations',
+        timeLimit: 5,
+        colors: ['#F59E0B', '#D97706'] as const,
+        icon: Zap,
+        iconColor: '#F59E0B',
+      },
+      {
+        id: 'hard',
+        title: 'Hard',
+        description: '3 seconds per question',
+        subtitle: 'Quick calculations',
+        timeLimit: 3,
+        colors: ['#EF4444', '#DC2626'] as const,
+        icon: Target,
+        iconColor: '#EF4444',
+      },
+      {
+        id: 'legend',
+        title: 'Legend',
+        description: '2 seconds per question',
+        subtitle: 'Lightning fast',
+        timeLimit: 2,
+        colors: ['#8B5CF6', '#7C3AED'] as const,
+        icon: Crown,
+        iconColor: '#8B5CF6',
+      },
+    ];
+  }
+};
 
 export default function DifficultyScreen() {
   const router = useRouter();
-  const { setTimeLimit } = useSettings();
+  const { setTimeLimit, gameMode } = useSettings();
   
   // Floating animations
   const float1 = useSharedValue(0);
@@ -135,7 +186,7 @@ export default function DifficultyScreen() {
 
       {/* Difficulty Options */}
       <View style={styles.difficultyContainer}>
-        {difficultyOptions.map((option, index) => {
+        {getDifficultyOptions(gameMode).map((option, index) => {
           const IconComponent = option.icon;
           return (
             <TouchableOpacity
@@ -157,6 +208,9 @@ export default function DifficultyScreen() {
                       <Clock size={14} color="rgba(255, 255, 255, 0.8)" />
                       <Text style={styles.timeText}>{option.description}</Text>
                     </View>
+                    {option.subtitle && (
+                      <Text style={styles.difficultySubtitle}>{option.subtitle}</Text>
+                    )}
                   </View>
                 </View>
               </LinearGradient>
@@ -305,6 +359,12 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: 'rgba(255, 255, 255, 0.8)',
     fontWeight: '500',
+  },
+  difficultySubtitle: {
+    fontSize: 12,
+    color: 'rgba(255, 255, 255, 0.7)',
+    marginTop: 2,
+    fontStyle: 'italic',
   },
   footer: {
     alignItems: 'center',
