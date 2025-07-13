@@ -283,7 +283,7 @@ export default function GameScreen() {
         distance = 10;
     }
     const answer = Math.round(distance / speed);
-    const question = `How long will it take to travel ${distance} km at ${speed} km/h?`;
+    const question = `How many hours will it take to travel ${distance} km at ${speed} km/h?`;
     return { question, answer };
   };
 
