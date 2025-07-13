@@ -1,5 +1,5 @@
 import { Tabs } from 'expo-router';
-import { Chrome as Home, Trophy, Settings, Play } from 'lucide-react-native';
+import { Chrome as Home, Trophy, Settings } from 'lucide-react-native';
 import { useSettings } from '@/hooks/useSettings';
 
 export default function TabLayout() {
@@ -42,10 +42,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="game"
         options={{
-          title: 'Play',
-          tabBarIcon: ({ size, color }) => (
-            <Play size={size} color={color} />
-          ),
+          href: null, // Hide from tab bar
         }}
       />
       <Tabs.Screen
