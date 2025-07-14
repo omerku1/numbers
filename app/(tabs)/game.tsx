@@ -71,28 +71,46 @@ export default function GameScreen() {
     const operation = operations[Math.floor(Math.random() * operations.length)];
     let a, b, answer, question;
 
+    // Helper function to generate modulo-5=0 numbers for easy/medium levels
+    const generateModulo5Number = (min: number, max: number) => {
+      const range = max - min + 1;
+      const modulo5Range = Math.floor(range / 5);
+      const randomMultiplier = Math.floor(Math.random() * modulo5Range);
+      return min + (randomMultiplier * 5);
+    };
+
+    // Helper function to generate any number for hard/legend levels
+    const generateAnyNumber = (min: number, max: number) => {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    };
+
+    // Determine if we should use modulo-5 constraint based on difficulty
+    const difficulty = getDifficultyFromTimeLimit(timeLimit);
+    const useModulo5 = difficulty === 'easy' || difficulty === 'medium';
+    const generateNumber = useModulo5 ? generateModulo5Number : generateAnyNumber;
+
     switch (operation) {
       case '+':
-        a = Math.floor(Math.random() * (20 + level * 5)) + 1;
-        b = Math.floor(Math.random() * (20 + level * 5)) + 1;
+        a = generateNumber(1, 20 + level * 5);
+        b = generateNumber(1, 20 + level * 5);
         answer = a + b;
         question = `${a} + ${b}`;
         break;
       case '-':
-        a = Math.floor(Math.random() * (30 + level * 5)) + 15;
-        b = Math.floor(Math.random() * (a - 1)) + 1;
+        a = generateNumber(15, 30 + level * 5);
+        b = generateNumber(1, a - 1);
         answer = a - b;
         question = `${a} - ${b}`;
         break;
       case '×':
-        a = Math.floor(Math.random() * (6 + Math.floor(level / 2))) + 1;
-        b = Math.floor(Math.random() * (6 + Math.floor(level / 2))) + 1;
+        a = generateNumber(1, 6 + Math.floor(level / 2));
+        b = generateNumber(1, 6 + Math.floor(level / 2));
         answer = a * b;
         question = `${a} × ${b}`;
         break;
       case '÷':
-        answer = Math.floor(Math.random() * (8 + level)) + 1;
-        a = answer * (Math.floor(Math.random() * (6 + Math.floor(level / 2))) + 1);
+        answer = generateNumber(1, 8 + level);
+        a = answer * generateNumber(1, 6 + Math.floor(level / 2));
         question = `${a} ÷ ${a / answer}`;
         break;
       default:
@@ -208,12 +226,14 @@ export default function GameScreen() {
       case 'easy':
         // Use simple percentages with numbers that divide evenly
         percent = cleanPercentages[Math.floor(Math.random() * cleanPercentages.length)];
-        const easyTotals = [50, 60, 80, 100, 120, 150, 160, 200, 240, 250, 300];
+        // For easy level, use only modulo-5=0 numbers
+        const easyTotals = [50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100, 105, 110, 115, 120, 125, 130, 135, 140, 145, 150, 155, 160, 165, 170, 175, 180, 185, 190, 195, 200, 205, 210, 215, 220, 225, 230, 235, 240, 245, 250, 255, 260, 265, 270, 275, 280, 285, 290, 295, 300];
         total = easyTotals[Math.floor(Math.random() * easyTotals.length)];
         break;
       case 'medium':
         percent = cleanPercentages[Math.floor(Math.random() * cleanPercentages.length)];
-        const mediumTotals = [100, 120, 150, 160, 180, 200, 240, 250, 300, 320, 360, 400, 450, 500];
+        // For medium level, use only modulo-5=0 numbers
+        const mediumTotals = [100, 105, 110, 115, 120, 125, 130, 135, 140, 145, 150, 155, 160, 165, 170, 175, 180, 185, 190, 195, 200, 205, 210, 215, 220, 225, 230, 235, 240, 245, 250, 255, 260, 265, 270, 275, 280, 285, 290, 295, 300, 305, 310, 315, 320, 325, 330, 335, 340, 345, 350, 355, 360, 365, 370, 375, 380, 385, 390, 395, 400, 405, 410, 415, 420, 425, 430, 435, 440, 445, 450, 455, 460, 465, 470, 475, 480, 485, 490, 495, 500];
         total = mediumTotals[Math.floor(Math.random() * mediumTotals.length)];
         break;
       case 'hard':
@@ -266,12 +286,16 @@ export default function GameScreen() {
     
     switch (difficulty) {
       case 'easy':
-        speed = Math.floor(Math.random() * 6) + 2; // 2 to 7 km/h
+        // For easy level, use only modulo-5=0 speeds
+        const easySpeeds = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100];
+        speed = easySpeeds[Math.floor(Math.random() * easySpeeds.length)];
         const easyWholeHours = Math.floor(Math.random() * 4) + 1; // 1 to 4 whole hours
         distance = Math.round((easyWholeHours + decimalType) * speed);
         break;
       case 'medium':
-        speed = Math.floor(Math.random() * 8) + 3; // 3 to 10 km/h
+        // For medium level, use only modulo-5=0 speeds
+        const mediumSpeeds = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100, 105, 110, 115, 120, 125, 130, 135, 140, 145, 150];
+        speed = mediumSpeeds[Math.floor(Math.random() * mediumSpeeds.length)];
         const mediumWholeHours = Math.floor(Math.random() * 5) + 1; // 1 to 5 whole hours
         distance = Math.round((mediumWholeHours + decimalType) * speed);
         break;
@@ -300,11 +324,15 @@ export default function GameScreen() {
     let price, discount;
     switch (difficulty) {
       case 'easy':
-        price = Math.floor(Math.random() * 50) + 10; // $10 to $60
+        // For easy level, use only modulo-5=0 prices
+        const easyPrices = [10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100, 105, 110, 115, 120, 125, 130, 135, 140, 145, 150, 155, 160, 165, 170, 175, 180, 185, 190, 195, 200, 205, 210, 215, 220, 225, 230, 235, 240, 245, 250, 255, 260, 265, 270, 275, 280, 285, 290, 295, 300];
+        price = easyPrices[Math.floor(Math.random() * easyPrices.length)];
         discount = Math.floor(Math.random() * 20) + 10; // 10% to 30%
         break;
       case 'medium':
-        price = Math.floor(Math.random() * 90) + 10; // $10 to $100
+        // For medium level, use only modulo-5=0 prices
+        const mediumPrices = [10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100, 105, 110, 115, 120, 125, 130, 135, 140, 145, 150, 155, 160, 165, 170, 175, 180, 185, 190, 195, 200, 205, 210, 215, 220, 225, 230, 235, 240, 245, 250, 255, 260, 265, 270, 275, 280, 285, 290, 295, 300, 305, 310, 315, 320, 325, 330, 335, 340, 345, 350, 355, 360, 365, 370, 375, 380, 385, 390, 395, 400, 405, 410, 415, 420, 425, 430, 435, 440, 445, 450, 455, 460, 465, 470, 475, 480, 485, 490, 495, 500];
+        price = mediumPrices[Math.floor(Math.random() * mediumPrices.length)];
         discount = Math.floor(Math.random() * 30) + 10; // 10% to 40%
         break;
       case 'hard':
@@ -347,13 +375,13 @@ export default function GameScreen() {
     let multiplier;
     switch (difficulty) {
       case 'easy':
-        // Use numbers divisible by common denominators (2, 3, 4, 5, 6)
-        const easyMultipliers = [10, 12, 15, 16, 18, 20, 24, 25, 30, 32, 36, 40, 45, 48, 50];
+        // For easy level, use only modulo-5=0 numbers
+        const easyMultipliers = [10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100, 105, 110, 115, 120, 125, 130, 135, 140, 145, 150, 155, 160, 165, 170, 175, 180, 185, 190, 195, 200, 205, 210, 215, 220, 225, 230, 235, 240, 245, 250, 255, 260, 265, 270, 275, 280, 285, 290, 295, 300];
         multiplier = easyMultipliers[Math.floor(Math.random() * easyMultipliers.length)];
         break;
       case 'medium':
-        // Use numbers divisible by more denominators (2, 3, 4, 5, 6, 8)
-        const mediumMultipliers = [24, 30, 32, 36, 40, 45, 48, 50, 60, 64, 72, 75, 80, 90, 96, 100];
+        // For medium level, use only modulo-5=0 numbers
+        const mediumMultipliers = [20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100, 105, 110, 115, 120, 125, 130, 135, 140, 145, 150, 155, 160, 165, 170, 175, 180, 185, 190, 195, 200, 205, 210, 215, 220, 225, 230, 235, 240, 245, 250, 255, 260, 265, 270, 275, 280, 285, 290, 295, 300, 305, 310, 315, 320, 325, 330, 335, 340, 345, 350, 355, 360, 365, 370, 375, 380, 385, 390, 395, 400, 405, 410, 415, 420, 425, 430, 435, 440, 445, 450, 455, 460, 465, 470, 475, 480, 485, 490, 495, 500];
         multiplier = mediumMultipliers[Math.floor(Math.random() * mediumMultipliers.length)];
         break;
       case 'hard':
@@ -392,39 +420,55 @@ export default function GameScreen() {
 
   const generateAverageProblem = (difficulty: string) => {
     let numbers;
+    
+    // Helper function to generate modulo-5=0 numbers
+    const generateModulo5Number = (min: number, max: number) => {
+      const range = max - min + 1;
+      const modulo5Range = Math.floor(range / 5);
+      const randomMultiplier = Math.floor(Math.random() * modulo5Range);
+      return min + (randomMultiplier * 5);
+    };
+    
+    // Helper function to generate any number
+    const generateAnyNumber = (min: number, max: number) => {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    };
+    
     switch (difficulty) {
       case 'easy':
+        // For easy level, use only modulo-5=0 numbers
         numbers = [
-          Math.floor(Math.random() * 30) + 10,
-          Math.floor(Math.random() * 30) + 10,
-          Math.floor(Math.random() * 30) + 10
+          generateModulo5Number(10, 40),
+          generateModulo5Number(10, 40),
+          generateModulo5Number(10, 40)
         ];
         break;
       case 'medium':
+        // For medium level, use only modulo-5=0 numbers
         numbers = [
-          Math.floor(Math.random() * 50) + 10,
-          Math.floor(Math.random() * 50) + 10,
-          Math.floor(Math.random() * 50) + 10,
-          Math.floor(Math.random() * 50) + 10
+          generateModulo5Number(10, 60),
+          generateModulo5Number(10, 60),
+          generateModulo5Number(10, 60),
+          generateModulo5Number(10, 60)
         ];
         break;
       case 'hard':
         numbers = [
-          Math.floor(Math.random() * 80) + 20,
-          Math.floor(Math.random() * 80) + 20,
-          Math.floor(Math.random() * 80) + 20,
-          Math.floor(Math.random() * 80) + 20,
-          Math.floor(Math.random() * 80) + 20
+          generateAnyNumber(20, 100),
+          generateAnyNumber(20, 100),
+          generateAnyNumber(20, 100),
+          generateAnyNumber(20, 100),
+          generateAnyNumber(20, 100)
         ];
         break;
       case 'legend':
         numbers = [
-          Math.floor(Math.random() * 100) + 30,
-          Math.floor(Math.random() * 100) + 30,
-          Math.floor(Math.random() * 100) + 30,
-          Math.floor(Math.random() * 100) + 30,
-          Math.floor(Math.random() * 100) + 30,
-          Math.floor(Math.random() * 100) + 30
+          generateAnyNumber(30, 130),
+          generateAnyNumber(30, 130),
+          generateAnyNumber(30, 130),
+          generateAnyNumber(30, 130),
+          generateAnyNumber(30, 130),
+          generateAnyNumber(30, 130)
         ];
         break;
       default:
@@ -439,11 +483,15 @@ export default function GameScreen() {
     let speed, time, distance;
     switch (difficulty) {
       case 'easy':
-        speed = Math.floor(Math.random() * 8) + 3; // 3 to 10 km/h
+        // For easy level, use only modulo-5=0 speeds
+        const easySpeeds = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100];
+        speed = easySpeeds[Math.floor(Math.random() * easySpeeds.length)];
         time = Math.floor(Math.random() * 4) + 2; // 2 to 5 hours
         break;
       case 'medium':
-        speed = Math.floor(Math.random() * 12) + 5; // 5 to 16 km/h
+        // For medium level, use only modulo-5=0 speeds
+        const mediumSpeeds = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100, 105, 110, 115, 120, 125, 130, 135, 140, 145, 150];
+        speed = mediumSpeeds[Math.floor(Math.random() * mediumSpeeds.length)];
         time = Math.floor(Math.random() * 6) + 2; // 2 to 7 hours
         break;
       case 'hard':
@@ -467,12 +515,14 @@ export default function GameScreen() {
     let x, y, answer;
     switch (difficulty) {
       case 'hard':
+        // For hard level, use any numbers
         x = Math.floor(Math.random() * 10) + 1;
         y = Math.floor(Math.random() * 10) + 1;
         answer = x * 2 + y * 3;
         const question = `If x = ${x} and y = ${y}, what is 2x + 3y?`;
         return { question, answer };
       case 'legend':
+        // For legend level, use any numbers
         x = Math.floor(Math.random() * 15) + 1;
         y = Math.floor(Math.random() * 15) + 1;
         answer = x * 3 + y * 4 - 5;
@@ -489,11 +539,13 @@ export default function GameScreen() {
     let answer;
     switch (difficulty) {
       case 'hard':
+        // For hard level, use any numbers
         const side = Math.floor(Math.random() * 10) + 5;
         answer = side * side;
         const question = `What is the area of a square with side length ${side}?`;
         return { question, answer };
       case 'legend':
+        // For legend level, use any numbers
         const length = Math.floor(Math.random() * 15) + 5;
         const width = Math.floor(Math.random() * 10) + 3;
         answer = length * width;
@@ -510,6 +562,7 @@ export default function GameScreen() {
     let answer;
     switch (difficulty) {
       case 'legend':
+        // For legend level, use any numbers
         const total = Math.floor(Math.random() * 20) + 10;
         const favorable = Math.floor(Math.random() * (total - 1)) + 1;
         answer = Math.round((favorable / total) * 100);
@@ -526,6 +579,7 @@ export default function GameScreen() {
     let answer;
     switch (difficulty) {
       case 'legend':
+        // For legend level, use any numbers
         const start = Math.floor(Math.random() * 10) + 1;
         const step = Math.floor(Math.random() * 5) + 2;
         const position = Math.floor(Math.random() * 5) + 3;
@@ -670,13 +724,8 @@ export default function GameScreen() {
       
     } else {
       // Wrong answer - strike
-      setStrikes(prev => {
-        const newStrikes = prev + 1;
-        if (newStrikes >= maxStrikes) {
-          setGameState('gameOver');
-        }
-        return newStrikes;
-      });
+      const newStrikes = strikes + 1;
+      setStrikes(newStrikes);
       setCombo(0);
       
       // Show answer feedback
@@ -694,29 +743,40 @@ export default function GameScreen() {
         withTiming(0, { duration: 50 })
       );
 
-      // Move to next problem after wrong answer
-      setTimeout(() => {
-        setShowFeedback(false);
-        setAnswerFeedback({});
-        nextProblem();
-      }, 1500);
+      // Check if this is the final strike (game over)
+      if (newStrikes >= maxStrikes) {
+        // Show feedback for longer before game over
+        setTimeout(() => {
+          setShowFeedback(false);
+          setAnswerFeedback({});
+          setGameState('gameOver');
+        }, 2000); // Show feedback for 2 seconds before game over
+      } else {
+        // Move to next problem after wrong answer (not game over)
+        setTimeout(() => {
+          setShowFeedback(false);
+          setAnswerFeedback({});
+          nextProblem();
+        }, 1500);
+      }
     }
   };
 
   const handleTimeUp = () => {
     // Time's up - strike and move to next problem
-    setStrikes(prev => {
-      const newStrikes = prev + 1;
-      if (newStrikes >= maxStrikes) {
-        setGameState('gameOver');
-      }
-      return newStrikes;
-    });
+    const newStrikes = strikes + 1;
+    setStrikes(newStrikes);
     setCombo(prev => {
       // Update best combo before resetting
       setBestCombo(currentBest => Math.max(currentBest, prev));
       return 0;
     });
+    
+    // Show answer feedback for time up
+    setAnswerFeedback({
+      [problem.answer]: 'correct'
+    });
+    setShowFeedback(true);
     
     // Strike shake animation
     strikeShake.value = withSequence(
@@ -726,8 +786,22 @@ export default function GameScreen() {
       withTiming(0, { duration: 50 })
     );
     
-    // Move to next problem
-    setTimeout(() => nextProblem(), 1000);
+    // Check if this is the final strike (game over)
+    if (newStrikes >= maxStrikes) {
+      // Show feedback for longer before game over
+      setTimeout(() => {
+        setShowFeedback(false);
+        setAnswerFeedback({});
+        setGameState('gameOver');
+      }, 2000); // Show feedback for 2 seconds before game over
+    } else {
+      // Move to next problem after time up (not game over)
+      setTimeout(() => {
+        setShowFeedback(false);
+        setAnswerFeedback({});
+        nextProblem();
+      }, 1500);
+    }
   };
 
   // Timer effect
