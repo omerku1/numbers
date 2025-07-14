@@ -11,6 +11,7 @@ import Animated, {
   withSpring,
 } from 'react-native-reanimated';
 import { useRouter } from 'expo-router';
+import { useFocusEffect } from '@react-navigation/native';
 import { Heart, Star, Zap, X, Clock, ArrowLeft } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import { useSettings } from '@/hooks/useSettings';
@@ -840,11 +841,46 @@ export default function GameScreen() {
     setTimeLeft(timeForProblem);
   }, [timeLimit, gameMode]);
 
-  // Initialize first problem
+  // Initialize first problem and reset game state
   useEffect(() => {
+    // Reset game state when component mounts
+    setGameState('playing');
+    setScore(0);
+    setStrikes(0);
+    setLevel(1);
+    setCombo(0);
+    setBestCombo(0);
+    setAnswerFeedback({});
+    setShowFeedback(false);
+    
     nextProblem();
     setIsGameActive(true); // Set game as active when starting
   }, []);
+
+  // Ensure game is active when component is focused
+  useFocusEffect(
+    React.useCallback(() => {
+      if (gameState === 'playing') {
+        setIsGameActive(true);
+      }
+    }, [gameState])
+  );
+
+  // Reset game state when game mode changes
+  useEffect(() => {
+    // Reset game state when game mode changes
+    setGameState('playing');
+    setScore(0);
+    setStrikes(0);
+    setLevel(1);
+    setCombo(0);
+    setBestCombo(0);
+    setAnswerFeedback({});
+    setShowFeedback(false);
+    
+    nextProblem();
+    setIsGameActive(true);
+  }, [gameMode]);
 
   // Cleanup timer on unmount
   useEffect(() => {
@@ -898,7 +934,19 @@ export default function GameScreen() {
           
           <TouchableOpacity
             style={styles.homeButton}
-            onPress={() => router.push('/')}
+            onPress={() => {
+              // Reset game state when going back to home
+              setGameState('playing');
+              setScore(0);
+              setStrikes(0);
+              setLevel(1);
+              setCombo(0);
+              setBestCombo(0);
+              setAnswerFeedback({});
+              setShowFeedback(false);
+              setIsGameActive(false);
+              router.push('/');
+            }}
           >
             <Text style={styles.homeButtonText}>Back to Home</Text>
           </TouchableOpacity>
@@ -913,6 +961,15 @@ export default function GameScreen() {
         <TouchableOpacity
           style={styles.backButton}
           onPress={() => {
+            // Reset game state when going back
+            setGameState('playing');
+            setScore(0);
+            setStrikes(0);
+            setLevel(1);
+            setCombo(0);
+            setBestCombo(0);
+            setAnswerFeedback({});
+            setShowFeedback(false);
             setIsGameActive(false);
             router.push('/');
           }}
