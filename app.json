@@ -18,6 +18,7 @@
     },
     "plugins": ["expo-router", "expo-font"],
     "experiments": {
+      "baseUrl": "/numbers/",
       "typedRoutes": true
     }
   }
