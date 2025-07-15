@@ -290,7 +290,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     color: 'white',
-    fontFamily: 'Menlo',
   },
   settingRow: {
     flexDirection: 'row',
@@ -317,13 +316,11 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '600',
     color: 'white',
-    fontFamily: 'Menlo',
   },
   settingDescription: {
     fontSize: 12,
     color: 'rgba(255, 255, 255, 0.6)',
     marginTop: 2,
-    fontFamily: 'Menlo',
   },
 
   statsGrid: {
@@ -346,12 +343,10 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: 'white',
     marginBottom: 4,
-    fontFamily: 'Menlo',
   },
   statLabel: {
     fontSize: 11,
     color: 'rgba(255, 255, 255, 0.7)',
-    fontFamily: 'Menlo',
     fontWeight: '600',
   },
   statIcon: {
@@ -387,19 +382,16 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     color: 'white',
-    fontFamily: 'Menlo',
   },
   aboutVersion: {
     fontSize: 12,
     color: 'rgba(255, 255, 255, 0.6)',
-    fontFamily: 'Menlo',
   },
   aboutDescription: {
     fontSize: 13,
     color: 'rgba(255, 255, 255, 0.8)',
     lineHeight: 20,
     marginBottom: 16,
-    fontFamily: 'Menlo',
   },
   aboutFeatures: {
     marginBottom: 20,
@@ -409,13 +401,11 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: 'white',
     marginBottom: 8,
-    fontFamily: 'Menlo',
   },
   featureItem: {
     fontSize: 13,
     color: 'rgba(255, 255, 255, 0.8)',
     marginBottom: 4,
-    fontFamily: 'Menlo',
   },
   signOutButton: {
     marginTop: 15,
@@ -431,6 +421,5 @@ const styles = StyleSheet.create({
     color: '#EF4444',
     fontWeight: 'bold',
     fontSize: 15,
-    fontFamily: 'Menlo',
   },
 });
