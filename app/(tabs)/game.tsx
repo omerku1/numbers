@@ -65,16 +65,33 @@ export default function GameScreen() {
     transform: [{ scale: interpolate(timerPulse.value, [0, 1], [1, 1.1]) }],
   }));
 
+  // Helper to ensure an answer is a whole number or a multiple of 0.25
+  const isQuarterMultiple = (num: number) => {
+    return Number.isInteger(Math.round(num * 4));
+  };
+
   const generateProblem = () => {
     if (gameMode === 'wordProblem') {
       return generateWordProblem();
     } else {
-      return generateTimeLimitProblem();
+      return generateArithmeticProblem();
     }
   };
 
-  const generateTimeLimitProblem = () => {
-    const operations = ['+', '-', '×', '÷'];
+  const generateArithmeticProblem = () => {
+    // Determine which operations are available based on the player's current level (internal stage)
+    let operations: string[] = [];
+    if (level <= 2) {
+      operations = ['+']; // Early – simple two-number addition
+    } else if (level <= 4) {
+      operations = ['+']; // Intermediate – still addition but with 3+ operands
+    } else if (level <= 6) {
+      operations = ['+', '-']; // Advanced – introduce subtraction
+    } else if (level <= 8) {
+      operations = ['+', '-', '×']; // Expert – add multiplication
+    } else {
+      operations = ['+', '-', '×', '÷']; // Master – full set including division
+    }
     const operation = operations[Math.floor(Math.random() * operations.length)];
     let a, b, answer, question;
 
@@ -98,10 +115,11 @@ export default function GameScreen() {
 
     switch (operation) {
       case '+':
-        a = generateNumber(1, 20 + level * 5);
-        b = generateNumber(1, 20 + level * 5);
-        answer = a + b;
-        question = `${a} + ${b}`;
+        // Determine how many numbers to add (2 in early levels, up to 5 later)
+        const addCount = level <= 2 ? 2 : Math.min(5, 2 + Math.floor(level / 2));
+        const numbers = Array.from({ length: addCount }, () => generateNumber(1, 20 + level * 5));
+        answer = numbers.reduce((sum, n) => sum + n, 0);
+        question = numbers.join(' + ');
         break;
       case '-':
         a = generateNumber(15, 30 + level * 5);
@@ -122,6 +140,11 @@ export default function GameScreen() {
         break;
       default:
         a = 1; b = 1; answer = 2; question = '1 + 1';
+    }
+
+    // Ensure the answer respects the X / .25 / .5 / .75 rule; regenerate if it does not
+    if (!isQuarterMultiple(answer)) {
+      return generateArithmeticProblem();
     }
 
     return { question, answer };
@@ -170,12 +193,6 @@ export default function GameScreen() {
         answer = speedResult.answer;
         break;
       
-      case 'algebra':
-        const algebraResult = generateAlgebraProblem(difficulty);
-        question = algebraResult.question;
-        answer = algebraResult.answer;
-        break;
-      
       case 'geometry':
         const geometryResult = generateGeometryProblem(difficulty);
         question = geometryResult.question;
@@ -199,6 +216,11 @@ export default function GameScreen() {
         answer = 50;
     }
 
+    // Ensure the answer respects the X / .25 / .5 / .75 rule; regenerate if it does not
+    if (!isQuarterMultiple(answer)) {
+      return generateWordProblem();
+    }
+
     return { question, answer };
   };
 
@@ -216,9 +238,9 @@ export default function GameScreen() {
       case 'medium':
         return ['percentage', 'distance', 'money', 'fraction', 'average', 'speed'];
       case 'hard':
-        return ['percentage', 'distance', 'money', 'fraction', 'average', 'speed', 'algebra', 'geometry'];
+        return ['percentage', 'distance', 'money', 'fraction', 'average', 'speed', 'geometry'];
       case 'legend':
-        return ['percentage', 'distance', 'money', 'fraction', 'average', 'speed', 'algebra', 'geometry', 'probability', 'sequence'];
+        return ['percentage', 'distance', 'money', 'fraction', 'average', 'speed', 'geometry', 'probability', 'sequence'];
       default:
         return ['percentage', 'distance', 'money', 'fraction'];
     }
@@ -287,48 +309,52 @@ export default function GameScreen() {
   };
 
   const generateDistanceProblem = (difficulty: string) => {
-    let speed, distance;
-    const decimalTypes = [0.25, 0.5, 0.75]; // Only allow .25, .5, .75 decimals
-    const decimalType = decimalTypes[Math.floor(Math.random() * decimalTypes.length)];
-    
-    switch (difficulty) {
-      case 'easy':
-        // For easy level, use only modulo-5=0 speeds
-        const easySpeeds = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100];
-        speed = easySpeeds[Math.floor(Math.random() * easySpeeds.length)];
-        const easyWholeHours = Math.floor(Math.random() * 4) + 1; // 1 to 4 whole hours
-        distance = Math.round((easyWholeHours + decimalType) * speed);
-        break;
-      case 'medium':
-        // For medium level, use only modulo-5=0 speeds
-        const mediumSpeeds = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100, 105, 110, 115, 120, 125, 130, 135, 140, 145, 150];
-        speed = mediumSpeeds[Math.floor(Math.random() * mediumSpeeds.length)];
-        const mediumWholeHours = Math.floor(Math.random() * 5) + 1; // 1 to 5 whole hours
-        distance = Math.round((mediumWholeHours + decimalType) * speed);
-        break;
-      case 'hard':
-        speed = Math.floor(Math.random() * 10) + 4; // 4 to 13 km/h
-        const hardWholeHours = Math.floor(Math.random() * 6) + 2; // 2 to 7 whole hours
-        distance = Math.round((hardWholeHours + decimalType) * speed);
-        break;
-      case 'legend':
-        speed = Math.floor(Math.random() * 12) + 6; // 6 to 17 km/h
-        const legendWholeHours = Math.floor(Math.random() * 8) + 3; // 3 to 10 whole hours
-        distance = Math.round((legendWholeHours + decimalType) * speed);
-        break;
-      default:
-        speed = 4;
-        distance = Math.round((2 + 0.5) * 4); // 2.5 hours * 4 km/h = 10 km
+    let speed, distance, answer;
+    const difficultyMultipliers = {
+      easy: { speedMax: 20, answerMax: 10 },
+      medium: { speedMax: 50, answerMax: 20 },
+      hard: { speedMax: 100, answerMax: 30 },
+      legend: { speedMax: 150, answerMax: 50 },
+    };
+    const { speedMax, answerMax } = difficultyMultipliers[difficulty] || difficultyMultipliers['easy'];
+    const useModulo5 = difficulty === 'easy' || difficulty === 'medium';
+
+    // 1. Generate a valid answer first (integer or quarter-multiple)
+    const wholeAnswer = Math.floor(Math.random() * answerMax) + 1;
+    const decimalPart = [0, 0.25, 0.5, 0.75][Math.floor(Math.random() * 4)];
+    answer = wholeAnswer + decimalPart;
+
+    // 2. Generate a compatible speed
+    if (useModulo5) {
+      // Ensure speed is a multiple of 5 and works with the decimal answer
+      const possibleSpeeds = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 60, 70, 75, 80, 90, 100].filter(s => s <= speedMax);
+      speed = possibleSpeeds[Math.floor(Math.random() * possibleSpeeds.length)];
+    } else {
+      speed = Math.floor(Math.random() * speedMax) + 5;
     }
     
-    const exactAnswer = distance / speed;
-    const answer = Math.round(exactAnswer * 100) / 100; // Round to 2 decimal places
+    // In case the answer has a decimal, we need to ensure speed is a multiple of 4
+    // to guarantee the resulting distance is an integer.
+    if (decimalPart !== 0) {
+       speed = (Math.floor(speed / 4) || 1) * 4;
+    }
+
+    // 3. Calculate distance to guarantee a valid problem
+    distance = speed * answer;
+    
+    // Ensure distance is also a multiple of 5 for easy/medium if required
+    if (useModulo5 && distance % 5 !== 0) {
+      // If the calculated distance isn't a multiple of 5, regenerate.
+      // This is a rare case but ensures all numbers fit the rules.
+      return generateDistanceProblem(difficulty);
+    }
+
     const question = `How many hours will it take to travel ${distance} km at ${speed} km/h?`;
     return { question, answer };
   };
 
   const generateMoneyProblem = (difficulty: string) => {
-    let price, discount;
+    let price, discount, answer;
     switch (difficulty) {
       case 'easy':
         // For easy level, use only modulo-5=0 prices
@@ -516,30 +542,6 @@ export default function GameScreen() {
     distance = speed * time;
     const question = `If you travel at ${speed} km/h for ${time} hours, how many kilometers will you cover?`;
     return { question, answer: distance };
-  };
-
-  const generateAlgebraProblem = (difficulty: string) => {
-    let x, y, answer;
-    switch (difficulty) {
-      case 'hard':
-        // For hard level, use any numbers
-        x = Math.floor(Math.random() * 10) + 1;
-        y = Math.floor(Math.random() * 10) + 1;
-        answer = x * 2 + y * 3;
-        const question = `If x = ${x} and y = ${y}, what is 2x + 3y?`;
-        return { question, answer };
-      case 'legend':
-        // For legend level, use any numbers
-        x = Math.floor(Math.random() * 15) + 1;
-        y = Math.floor(Math.random() * 15) + 1;
-        answer = x * 3 + y * 4 - 5;
-        const question2 = `If x = ${x} and y = ${y}, what is 3x + 4y - 5?`;
-        return { question: question2, answer };
-      default:
-        answer = 10;
-        const question3 = "If x = 2 and y = 2, what is 2x + 3y?";
-        return { question: question3, answer };
-    }
   };
 
   const generateGeometryProblem = (difficulty: string) => {

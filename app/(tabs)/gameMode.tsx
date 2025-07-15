@@ -17,9 +17,9 @@ const { width } = Dimensions.get('window');
 
 const gameModes = [
   {
-    id: 'timeLimit',
-    title: 'Time Limit',
-    description: 'Solve math problems against the clock',
+    id: 'arithmetic',
+    title: 'Arithmetic',
+    description: 'Solve math problems against the clock.',
     subtitle: 'Quick calculations under pressure',
     colors: ['#667eea', '#764ba2'] as const,
     icon: Clock,
@@ -74,7 +74,7 @@ export default function GameModeScreen() {
     transform: [{ scale: interpolate(pulse.value, [0, 1], [1, 1.05]) }],
   }));
 
-  const handleGameModeSelect = (mode: 'timeLimit' | 'wordProblem') => {
+  const handleGameModeSelect = (mode: 'arithmetic' | 'wordProblem') => {
     setGameMode(mode);
     router.push('/difficulty');
   };
@@ -125,7 +125,7 @@ export default function GameModeScreen() {
             <TouchableOpacity
               key={mode.id}
               style={styles.modeButton}
-              onPress={() => handleGameModeSelect(mode.id as 'timeLimit' | 'wordProblem')}
+              onPress={() => handleGameModeSelect(mode.id as 'arithmetic' | 'wordProblem')}
             >
               <LinearGradient
                 colors={mode.colors}

@@ -28,12 +28,12 @@ export interface UserProfile {
 }
 
 export interface GameScore {
-  id: string;
+  id?: number;
   user_id: string;
   score: number;
   level_reached: number;
   best_combo: number;
-  game_mode: 'timeLimit' | 'wordProblem';
+  game_mode: 'arithmetic' | 'wordProblem';
   time_limit: number;
   total_questions: number;
   correct_answers: number;

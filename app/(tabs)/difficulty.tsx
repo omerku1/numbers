@@ -15,7 +15,7 @@ import { useSettings } from '@/hooks/useSettings';
 
 const { width } = Dimensions.get('window');
 
-const getDifficultyOptions = (gameMode: 'timeLimit' | 'wordProblem') => {
+const getDifficultyOptions = (gameMode: 'arithmetic' | 'wordProblem') => {
   if (gameMode === 'wordProblem') {
     return [
       {
@@ -166,7 +166,7 @@ export default function DifficultyScreen() {
       <View style={styles.header}>
         <TouchableOpacity
           style={styles.backButton}
-          onPress={() => router.back()}
+          onPress={() => router.push('/gameMode')}
         >
           <ArrowLeft size={24} color="#9CA3AF" />
         </TouchableOpacity>
