@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, Dimensions } from 'react-nati
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { Play, Trophy, Settings, Brain, Zap, Target, Clock } from 'lucide-react-native';
+import { useAuth } from '@/hooks/useAuth';
 import Animated, { 
   useSharedValue, 
   useAnimatedStyle, 
@@ -16,6 +17,7 @@ const { width } = Dimensions.get('window');
 
 export default function HomeScreen() {
   const router = useRouter();
+  const { profile } = useAuth();
   
   // Floating animations
   const float1 = useSharedValue(0);
@@ -134,7 +136,7 @@ export default function HomeScreen() {
           style={styles.statsContainer}
         >
           <View style={styles.statItem}>
-            <Text style={styles.statValue}>2,847</Text>
+            <Text style={styles.statValue}>{profile?.best_score?.toLocaleString() || '0'}</Text>
             <Text style={styles.statLabel}>Best Score</Text>
             <View style={styles.statIcon}>
               <Trophy size={14} color="#FFD700" />
@@ -144,7 +146,7 @@ export default function HomeScreen() {
           <View style={styles.statDivider} />
           
           <View style={styles.statItem}>
-            <Text style={styles.statValue}>Level 12</Text>
+            <Text style={styles.statValue}>Level {profile?.best_level || 1}</Text>
             <Text style={styles.statLabel}>Peak Level</Text>
             <View style={styles.statIcon}>
               <Target size={14} color="#667eea" />
@@ -154,7 +156,7 @@ export default function HomeScreen() {
           <View style={styles.statDivider} />
           
           <View style={styles.statItem}>
-            <Text style={styles.statValue}>89</Text>
+            <Text style={styles.statValue}>{profile?.total_games_played || 0}</Text>
             <Text style={styles.statLabel}>Games Won</Text>
             <View style={styles.statIcon}>
               <Clock size={14} color="#28a745" />
@@ -165,7 +167,7 @@ export default function HomeScreen() {
 
       {/* Footer */}
       <View style={styles.footer}>
-        <Text style={styles.footerText}>Ready to challenge your mind?</Text>
+        <Text style={styles.footerText}>Welcome back, {profile?.display_name || 'Player'}!</Text>
       </View>
     </LinearGradient>
   );

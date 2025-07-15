@@ -1,9 +1,25 @@
 import { Tabs } from 'expo-router';
+import { Redirect } from 'expo-router';
 import { Chrome as Home, Trophy, Settings } from 'lucide-react-native';
 import { useSettings } from '@/hooks/useSettings';
+import { useAuth } from '@/hooks/useAuth';
+import { View, ActivityIndicator } from 'react-native';
 
 export default function TabLayout() {
   const { isGameActive } = useSettings();
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#0F0C29' }}>
+        <ActivityIndicator size="large" color="#667eea" />
+      </View>
+    );
+  }
+
+  if (!user) {
+    return <Redirect href="/login" />;
+  }
 
   return (
     <Tabs

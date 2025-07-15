@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Switch, ScrollView } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Settings, Volume2, VolumeX, Zap, Shield, Info, User, ChartBar as BarChart3, Gamepad2 } from 'lucide-react-native';
+import { useAuth } from '@/hooks/useAuth';
 import Animated, { 
   useSharedValue, 
   useAnimatedStyle, 
@@ -20,6 +21,7 @@ export default function SettingsScreen() {
     notifications, 
     setNotifications 
   } = useSettings();
+  const { profile, signOut } = useAuth();
 
   const pulse = useSharedValue(0);
 
@@ -139,7 +141,7 @@ export default function SettingsScreen() {
               colors={['rgba(102, 126, 234, 0.2)', 'rgba(102, 126, 234, 0.1)']}
               style={styles.statCard}
             >
-              <Text style={styles.statValue}>89</Text>
+              <Text style={styles.statValue}>{profile?.total_games_played || 0}</Text>
               <Text style={styles.statLabel}>Games Played</Text>
               <View style={styles.statIcon}>
                 <Gamepad2 size={14} color="#667eea" />
@@ -150,7 +152,7 @@ export default function SettingsScreen() {
               colors={['rgba(255, 215, 0, 0.2)', 'rgba(255, 215, 0, 0.1)']}
               style={styles.statCard}
             >
-              <Text style={styles.statValue}>2,847</Text>
+              <Text style={styles.statValue}>{profile?.best_score?.toLocaleString() || '0'}</Text>
               <Text style={styles.statLabel}>Best Score</Text>
               <View style={styles.statIcon}>
                 <BarChart3 size={14} color="#FFD700" />
@@ -161,7 +163,7 @@ export default function SettingsScreen() {
               colors={['rgba(16, 185, 129, 0.2)', 'rgba(16, 185, 129, 0.1)']}
               style={styles.statCard}
             >
-              <Text style={styles.statValue}>18h 42m</Text>
+              <Text style={styles.statValue}>{Math.floor((profile?.total_time_played || 0) / 60)}m</Text>
               <Text style={styles.statLabel}>Time Played</Text>
               <View style={styles.statIcon}>
                 <Zap size={14} color="#10B981" />
@@ -172,7 +174,7 @@ export default function SettingsScreen() {
               colors={['rgba(239, 68, 68, 0.2)', 'rgba(239, 68, 68, 0.1)']}
               style={styles.statCard}
             >
-              <Text style={styles.statValue}>92%</Text>
+              <Text style={styles.statValue}>{profile?.accuracy_percentage?.toFixed(0) || '0'}%</Text>
               <Text style={styles.statLabel}>Accuracy</Text>
               <View style={styles.statIcon}>
                 <Shield size={14} color="#EF4444" />
@@ -202,7 +204,7 @@ export default function SettingsScreen() {
               </View>
               <View style={styles.aboutInfo}>
                 <Text style={styles.aboutTitle}>Number or Trap</Text>
-                <Text style={styles.aboutVersion}>Version 1.0.0</Text>
+                <Text style={styles.aboutVersion}>Logged in as: {profile?.username || 'Unknown'}</Text>
               </View>
             </View>
             
@@ -220,6 +222,13 @@ export default function SettingsScreen() {
               <Text style={styles.featureItem}>• Global leaderboards</Text>
               <Text style={styles.featureItem}>• Smooth animations & effects</Text>
             </View>
+
+            <TouchableOpacity
+              style={styles.signOutButton}
+              onPress={signOut}
+            >
+              <Text style={styles.signOutText}>Sign Out</Text>
+            </TouchableOpacity>
           </LinearGradient>
         </View>
       </ScrollView>
@@ -406,5 +415,20 @@ const styles = StyleSheet.create({
     color: 'rgba(255, 255, 255, 0.8)',
     marginBottom: 3,
     lineHeight: 16,
+  },
+  signOutButton: {
+    marginTop: 15,
+    backgroundColor: 'rgba(239, 68, 68, 0.2)',
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: 'rgba(239, 68, 68, 0.3)',
+    alignItems: 'center',
+  },
+  signOutText: {
+    color: '#EF4444',
+    fontSize: 14,
+    fontWeight: '600',
   },
 });
