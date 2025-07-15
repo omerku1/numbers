@@ -74,11 +74,11 @@ export default function GameScreen() {
     if (gameMode === 'wordProblem') {
       return generateWordProblem();
     } else {
-      return generateTimeLimitProblem();
+      return generateArithmeticProblem();
     }
   };
 
-  const generateTimeLimitProblem = () => {
+  const generateArithmeticProblem = () => {
     // Determine which operations are available based on the player's current level (internal stage)
     let operations: string[] = [];
     if (level <= 2) {
@@ -144,7 +144,7 @@ export default function GameScreen() {
 
     // Ensure the answer respects the X / .25 / .5 / .75 rule; regenerate if it does not
     if (!isQuarterMultiple(answer)) {
-      return generateTimeLimitProblem();
+      return generateArithmeticProblem();
     }
 
     return { question, answer };
@@ -309,48 +309,52 @@ export default function GameScreen() {
   };
 
   const generateDistanceProblem = (difficulty: string) => {
-    let speed, distance;
-    const decimalTypes = [0.25, 0.5, 0.75]; // Only allow .25, .5, .75 decimals
-    const decimalType = decimalTypes[Math.floor(Math.random() * decimalTypes.length)];
-    
-    switch (difficulty) {
-      case 'easy':
-        // For easy level, use only modulo-5=0 speeds
-        const easySpeeds = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100];
-        speed = easySpeeds[Math.floor(Math.random() * easySpeeds.length)];
-        const easyWholeHours = Math.floor(Math.random() * 4) + 1; // 1 to 4 whole hours
-        distance = Math.round((easyWholeHours + decimalType) * speed);
-        break;
-      case 'medium':
-        // For medium level, use only modulo-5=0 speeds
-        const mediumSpeeds = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100, 105, 110, 115, 120, 125, 130, 135, 140, 145, 150];
-        speed = mediumSpeeds[Math.floor(Math.random() * mediumSpeeds.length)];
-        const mediumWholeHours = Math.floor(Math.random() * 5) + 1; // 1 to 5 whole hours
-        distance = Math.round((mediumWholeHours + decimalType) * speed);
-        break;
-      case 'hard':
-        speed = Math.floor(Math.random() * 10) + 4; // 4 to 13 km/h
-        const hardWholeHours = Math.floor(Math.random() * 6) + 2; // 2 to 7 whole hours
-        distance = Math.round((hardWholeHours + decimalType) * speed);
-        break;
-      case 'legend':
-        speed = Math.floor(Math.random() * 12) + 6; // 6 to 17 km/h
-        const legendWholeHours = Math.floor(Math.random() * 8) + 3; // 3 to 10 whole hours
-        distance = Math.round((legendWholeHours + decimalType) * speed);
-        break;
-      default:
-        speed = 4;
-        distance = Math.round((2 + 0.5) * 4); // 2.5 hours * 4 km/h = 10 km
+    let speed, distance, answer;
+    const difficultyMultipliers = {
+      easy: { speedMax: 20, answerMax: 10 },
+      medium: { speedMax: 50, answerMax: 20 },
+      hard: { speedMax: 100, answerMax: 30 },
+      legend: { speedMax: 150, answerMax: 50 },
+    };
+    const { speedMax, answerMax } = difficultyMultipliers[difficulty] || difficultyMultipliers['easy'];
+    const useModulo5 = difficulty === 'easy' || difficulty === 'medium';
+
+    // 1. Generate a valid answer first (integer or quarter-multiple)
+    const wholeAnswer = Math.floor(Math.random() * answerMax) + 1;
+    const decimalPart = [0, 0.25, 0.5, 0.75][Math.floor(Math.random() * 4)];
+    answer = wholeAnswer + decimalPart;
+
+    // 2. Generate a compatible speed
+    if (useModulo5) {
+      // Ensure speed is a multiple of 5 and works with the decimal answer
+      const possibleSpeeds = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 60, 70, 75, 80, 90, 100].filter(s => s <= speedMax);
+      speed = possibleSpeeds[Math.floor(Math.random() * possibleSpeeds.length)];
+    } else {
+      speed = Math.floor(Math.random() * speedMax) + 5;
     }
     
-    const exactAnswer = distance / speed;
-    const answer = Math.round(exactAnswer * 100) / 100; // Round to 2 decimal places
+    // In case the answer has a decimal, we need to ensure speed is a multiple of 4
+    // to guarantee the resulting distance is an integer.
+    if (decimalPart !== 0) {
+       speed = (Math.floor(speed / 4) || 1) * 4;
+    }
+
+    // 3. Calculate distance to guarantee a valid problem
+    distance = speed * answer;
+    
+    // Ensure distance is also a multiple of 5 for easy/medium if required
+    if (useModulo5 && distance % 5 !== 0) {
+      // If the calculated distance isn't a multiple of 5, regenerate.
+      // This is a rare case but ensures all numbers fit the rules.
+      return generateDistanceProblem(difficulty);
+    }
+
     const question = `How many hours will it take to travel ${distance} km at ${speed} km/h?`;
     return { question, answer };
   };
 
   const generateMoneyProblem = (difficulty: string) => {
-    let price, discount;
+    let price, discount, answer;
     switch (difficulty) {
       case 'easy':
         // For easy level, use only modulo-5=0 prices

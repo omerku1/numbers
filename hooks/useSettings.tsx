@@ -3,8 +3,8 @@ import React, { createContext, useContext, useState, ReactNode } from 'react';
 interface SettingsContextType {
   timeLimit: number;
   setTimeLimit: (limit: number) => void;
-  gameMode: 'timeLimit' | 'wordProblem';
-  setGameMode: (mode: 'timeLimit' | 'wordProblem') => void;
+  gameMode: 'arithmetic' | 'wordProblem';
+  setGameMode: (mode: 'arithmetic' | 'wordProblem') => void;
   soundEnabled: boolean;
   setSoundEnabled: (enabled: boolean) => void;
   hapticsEnabled: boolean;
@@ -19,7 +19,7 @@ const SettingsContext = createContext<SettingsContextType | undefined>(undefined
 
 export function SettingsProvider({ children }: { children: ReactNode }) {
   const [timeLimit, setTimeLimit] = useState(5);
-  const [gameMode, setGameMode] = useState<'timeLimit' | 'wordProblem'>('timeLimit');
+  const [gameMode, setGameMode] = useState<'arithmetic' | 'wordProblem'>('arithmetic');
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [hapticsEnabled, setHapticsEnabled] = useState(true);
   const [notifications, setNotifications] = useState(false);
