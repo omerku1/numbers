@@ -380,9 +380,9 @@ export default function GameScreen() {
         price = 50;
         discount = 20;
     }
-    const answer = Math.round(price * (1 - discount / 100));
+    const answer2 = Math.round(price * (1 - discount / 100));
     const question = `A $${price} item is ${discount}% off. What is the final price?`;
-    return { question, answer };
+    return { question, answer2 };
   };
 
   const generateFractionProblem = (difficulty: string) => {
