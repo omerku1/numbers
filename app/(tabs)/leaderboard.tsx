@@ -46,7 +46,7 @@ export default function LeaderboardScreen() {
     const { data, error } = await getLeaderboard(50);
     
     if (data && !error) {
-      setLeaderboardData(data);
+      setLeaderboardData(data as UserProfile[]);
       
       // Find user's rank
       if (profile) {
@@ -88,13 +88,13 @@ export default function LeaderboardScreen() {
   const getRankColors = (rank: number) => {
     switch (rank) {
       case 1:
-        return ['rgba(255, 215, 0, 0.3)', 'rgba(255, 215, 0, 0.1)', 'rgba(255, 215, 0, 0.05)'];
+        return ['rgba(255, 215, 0, 0.3)', 'rgba(255, 215, 0, 0.1)', 'rgba(255, 215, 0, 0.05)'] as const;
       case 2:
-        return ['rgba(192, 192, 192, 0.3)', 'rgba(192, 192, 192, 0.1)', 'rgba(192, 192, 192, 0.05)'];
+        return ['rgba(192, 192, 192, 0.3)', 'rgba(192, 192, 192, 0.1)', 'rgba(192, 192, 192, 0.05)'] as const;
       case 3:
-        return ['rgba(205, 127, 50, 0.3)', 'rgba(205, 127, 50, 0.1)', 'rgba(205, 127, 50, 0.05)'];
+        return ['rgba(205, 127, 50, 0.3)', 'rgba(205, 127, 50, 0.1)', 'rgba(205, 127, 50, 0.05)'] as const;
       default:
-        return ['rgba(255, 255, 255, 0.08)', 'rgba(255, 255, 255, 0.04)', 'rgba(255, 255, 255, 0.02)'];
+        return ['rgba(255, 255, 255, 0.08)', 'rgba(255, 255, 255, 0.04)', 'rgba(255, 255, 255, 0.02)'] as const;
     }
   };
 
@@ -264,25 +264,28 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.3,
     shadowRadius: 12,
-    elevation: 6,
+    elevation: 10,
   },
   title: {
     fontSize: 28,
     fontWeight: 'bold',
     color: 'white',
     marginBottom: 6,
-    textShadowColor: 'rgba(0, 0, 0, 0.3)',
-    textShadowOffset: { width: 0, height: 2 },
-    textShadowRadius: 4,
+    fontFamily: 'Menlo',
   },
   subtitle: {
-    fontSize: 16,
-    color: 'rgba(255, 255, 255, 0.8)',
-    marginBottom: 12,
+    fontSize: 15,
+    color: 'rgba(255, 255, 255, 0.7)',
+    fontFamily: 'Menlo',
   },
   headerStats: {
     flexDirection: 'row',
     alignItems: 'center',
+    gap: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 1,
+    marginTop: 1,
   },
   headerStatItem: {
     flexDirection: 'row',
@@ -297,22 +300,22 @@ const styles = StyleSheet.create({
   },
   headerStatText: {
     fontSize: 12,
-    color: '#FFD700',
     fontWeight: '600',
+    color: 'white',
   },
   leaderboardContainer: {
     flex: 1,
     paddingHorizontal: 20,
   },
   playerRowContainer: {
-    marginBottom: 10,
+    marginBottom: 12,
   },
   playerRow: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: 15,
     paddingHorizontal: 16,
-    borderRadius: 14,
+    borderRadius: 20,
     borderWidth: 2,
     position: 'relative',
     overflow: 'hidden',
@@ -359,30 +362,28 @@ const styles = StyleSheet.create({
   },
   playerName: {
     fontSize: 16,
-    fontWeight: '700',
+    fontWeight: 'bold',
     color: 'white',
     marginBottom: 4,
   },
   topThreeName: {
-    color: '#FFD700',
+    fontWeight: '900',
   },
   championName: {
-    fontSize: 17,
-    textShadowColor: 'rgba(255, 215, 0, 0.5)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 2,
+    color: '#FFD700',
   },
   crownEmoji: {
     fontSize: 14,
   },
   playerDetails: {
     flexDirection: 'row',
+    alignItems: 'center',
     gap: 12,
   },
   detailItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 3,
+    gap: 4,
   },
   detailText: {
     fontSize: 11,
@@ -395,17 +396,13 @@ const styles = StyleSheet.create({
   playerScore: {
     fontSize: 17,
     fontWeight: 'bold',
-    color: '#667eea',
+    color: 'white',
   },
   topThreeScore: {
-    color: '#FFD700',
-    fontSize: 18,
+    fontWeight: '900',
   },
   championScore: {
-    fontSize: 19,
-    textShadowColor: 'rgba(255, 215, 0, 0.5)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 2,
+    color: '#FFD700',
   },
   pointsLabel: {
     fontSize: 10,
@@ -430,44 +427,45 @@ const styles = StyleSheet.create({
   },
   yourScoreLabel: {
     fontSize: 14,
-    color: 'rgba(255, 255, 255, 0.8)',
-    fontWeight: '600',
+    fontWeight: 'bold',
+    color: 'white',
   },
   yourRankBadge: {
-    backgroundColor: 'rgba(102, 126, 234, 0.3)',
-    paddingHorizontal: 10,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    paddingHorizontal: 8,
     paddingVertical: 3,
-    borderRadius: 10,
+    borderRadius: 8,
     borderWidth: 1,
     borderColor: 'rgba(102, 126, 234, 0.5)',
   },
   yourRank: {
-    fontSize: 12,
     color: '#667eea',
     fontWeight: 'bold',
+    fontSize: 12,
   },
   yourScoreStats: {
     flexDirection: 'row',
     justifyContent: 'space-around',
   },
   yourStatItem: {
-    alignItems: 'center',
     flex: 1,
+    alignItems: 'center',
   },
   yourScoreValue: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#667eea',
-    marginBottom: 3,
+    color: 'white',
+    marginBottom: 4,
   },
   yourStatLabel: {
     fontSize: 11,
     color: 'rgba(255, 255, 255, 0.7)',
+    fontWeight: '600',
   },
   statDivider: {
     width: 1,
+    height: '60%',
     backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    marginHorizontal: 8,
   },
   loadingContainer: {
     flex: 1,
@@ -476,7 +474,7 @@ const styles = StyleSheet.create({
     paddingVertical: 40,
   },
   loadingText: {
-    color: 'rgba(255, 255, 255, 0.8)',
+    color: 'white',
     fontSize: 16,
   },
   emptyContainer: {
@@ -486,7 +484,7 @@ const styles = StyleSheet.create({
     paddingVertical: 40,
   },
   emptyText: {
-    color: 'rgba(255, 255, 255, 0.8)',
+    color: 'rgba(255, 255, 255, 0.7)',
     fontSize: 16,
     textAlign: 'center',
   },
