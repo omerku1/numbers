@@ -10,8 +10,7 @@ import Animated, {
   interpolate,
   withSpring,
 } from 'react-native-reanimated';
-import { useRouter } from 'expo-router';
-import { useFocusEffect } from '@react-navigation/native';
+import { useRouter, useFocusEffect } from 'expo-router';
 import { Heart, Star, Zap, X, Clock, ArrowLeft } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import { useSettings } from '@/hooks/useSettings';
