@@ -157,7 +157,7 @@ export default function HomeScreen() {
           
           <View style={styles.statItem}>
             <Text style={styles.statValue}>{profile?.total_games_played || 0}</Text>
-            <Text style={styles.statLabel}>Games Won</Text>
+            <Text style={styles.statLabel}>Games Played</Text>
             <View style={styles.statIcon}>
               <Clock size={14} color="#28a745" />
             </View>
@@ -282,6 +282,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     color: 'white',
+    fontFamily: 'Menlo',
   },
   playButtonSubtext: {
     flexDirection: 'row',
@@ -315,6 +316,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     color: 'white',
+    fontFamily: 'Menlo',
   },
   statsSection: {
     marginBottom: 20,
@@ -337,11 +339,14 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: 'white',
     marginBottom: 4,
+    fontFamily: 'Menlo',
   },
   statLabel: {
     fontSize: 11,
     color: 'rgba(255, 255, 255, 0.7)',
     textAlign: 'center',
+    fontFamily: 'Menlo',
+    fontWeight: '600',
   },
   statIcon: {
     position: 'absolute',
@@ -360,6 +365,5 @@ const styles = StyleSheet.create({
   footerText: {
     fontSize: 12,
     color: 'rgba(255, 255, 255, 0.6)',
-    fontStyle: 'italic',
   },
 });
