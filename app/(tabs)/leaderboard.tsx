@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Trophy, Medal, Award, Crown, Star, Zap } from 'lucide-react-native';
@@ -144,7 +144,7 @@ export default function LeaderboardScreen() {
           </View>
         ) : (
           leaderboardData.map((player, index) => (
-          <View key={player.rank} style={styles.playerRowContainer}>
+          <View key={player.id} style={styles.playerRowContainer}>
             <LinearGradient
               colors={getRankColors(index + 1)}
               style={[

@@ -37,13 +37,17 @@ export default function LoginScreen() {
     }
 
     setLoading(true);
-    const { error } = await signIn(email, password);
-    setLoading(false);
-
-    if (error) {
-      Alert.alert('Login Failed', error.message);
-    } else {
-      router.replace('/');
+    try {
+      const { error } = await signIn(email, password);
+      if (error) {
+        Alert.alert('Login Failed', error.message || 'Unknown error');
+      } else {
+        router.replace('/');
+      }
+    } catch (e) {
+      Alert.alert('Login Failed', e.message || 'Unknown error');
+    } finally {
+      setLoading(false);
     }
   };
 
