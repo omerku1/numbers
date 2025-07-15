@@ -1,7 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Trophy, Medal, Award, Crown, Star, Zap } from 'lucide-react-native';
+import { useAuth } from '@/hooks/useAuth';
+import { useGameScores } from '@/hooks/useGameScores';
+import { UserProfile } from '@/lib/supabase';
 import Animated, { 
   useSharedValue, 
   useAnimatedStyle, 
@@ -11,20 +14,14 @@ import Animated, {
   withSequence
 } from 'react-native-reanimated';
 
-const mockScores = [
-  { rank: 1, name: 'MathWizard2024', score: 24750, level: 18, combo: 47 },
-  { rank: 2, name: 'NumberNinja', score: 21200, level: 16, combo: 42 },
-  { rank: 3, name: 'QuickCalc', score: 18800, level: 15, combo: 38 },
-  { rank: 4, name: 'BrainMaster', score: 16650, level: 14, combo: 35 },
-  { rank: 5, name: 'SpeedSolver', score: 14900, level: 13, combo: 31 },
-  { rank: 6, name: 'MathGenius', score: 13200, level: 12, combo: 28 },
-  { rank: 7, name: 'CalculatorKid', score: 11750, level: 11, combo: 25 },
-  { rank: 8, name: 'NumberCruncher', score: 10300, level: 10, combo: 22 },
-  { rank: 9, name: 'ArithmeticAce', score: 9100, level: 9, combo: 19 },
-  { rank: 10, name: 'MathMaster', score: 8200, level: 8, combo: 16 },
-];
 
 export default function LeaderboardScreen() {
+  const { profile } = useAuth();
+  const { getLeaderboard } = useGameScores();
+  const [leaderboardData, setLeaderboardData] = useState<UserProfile[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [userRank, setUserRank] = useState<number | null>(null);
+
   const shimmer = useSharedValue(0);
   const crown = useSharedValue(0);
 
@@ -40,6 +37,25 @@ export default function LeaderboardScreen() {
     );
   }, []);
 
+  React.useEffect(() => {
+    loadLeaderboard();
+  }, []);
+
+  const loadLeaderboard = async () => {
+    setLoading(true);
+    const { data, error } = await getLeaderboard(50);
+    
+    if (data && !error) {
+      setLeaderboardData(data);
+      
+      // Find user's rank
+      if (profile) {
+        const rank = data.findIndex(player => player.id === profile.id) + 1;
+        setUserRank(rank > 0 ? rank : null);
+      }
+    }
+    setLoading(false);
+  };
   const shimmerStyle = useAnimatedStyle(() => ({
     transform: [{ translateX: interpolate(shimmer.value, [0, 1], [-100, 400]) }],
   }));
@@ -118,17 +134,26 @@ export default function LeaderboardScreen() {
       </View>
 
       <ScrollView style={styles.leaderboardContainer} showsVerticalScrollIndicator={false}>
-        {mockScores.map((player, index) => (
-          <View key={player.rank} style={styles.playerRowContainer}>
+        {loading ? (
+          <View style={styles.loadingContainer}>
+            <Text style={styles.loadingText}>Loading leaderboard...</Text>
+          </View>
+        ) : leaderboardData.length === 0 ? (
+          <View style={styles.emptyContainer}>
+            <Text style={styles.emptyText}>No scores yet. Be the first to play!</Text>
+          </View>
+        ) : (
+          leaderboardData.map((player, index) => (
+          <View key={player.id} style={styles.playerRowContainer}>
             <LinearGradient
-              colors={getRankColors(player.rank)}
+              colors={getRankColors(index + 1)}
               style={[
                 styles.playerRow,
-                player.rank <= 3 && styles.topThreeRow,
-                { borderColor: getBorderColor(player.rank) }
+                (index + 1) <= 3 && styles.topThreeRow,
+                { borderColor: getBorderColor(index + 1) }
               ]}
             >
-              {player.rank === 1 && (
+              {index === 0 && (
                 <Animated.View style={[styles.shimmerOverlay, shimmerStyle]}>
                   <LinearGradient
                     colors={['transparent', 'rgba(255, 215, 0, 0.3)', 'transparent']}
@@ -140,26 +165,26 @@ export default function LeaderboardScreen() {
               )}
               
               <View style={styles.rankContainer}>
-                {getRankIcon(player.rank)}
+                {getRankIcon(index + 1)}
               </View>
               
               <View style={styles.playerInfo}>
                 <Text style={[
                   styles.playerName, 
-                  player.rank <= 3 && styles.topThreeName,
-                  player.rank === 1 && styles.championName
+                  (index + 1) <= 3 && styles.topThreeName,
+                  index === 0 && styles.championName
                 ]}>
-                  {player.name}
-                  {player.rank === 1 && <Text style={styles.crownEmoji}> 👑</Text>}
+                  {player.display_name}
+                  {index === 0 && <Text style={styles.crownEmoji}> 👑</Text>}
                 </Text>
                 <View style={styles.playerDetails}>
                   <View style={styles.detailItem}>
                     <Star size={10} color="#FFD700" />
-                    <Text style={styles.detailText}>Level {player.level}</Text>
+                    <Text style={styles.detailText}>Level {player.best_level}</Text>
                   </View>
                   <View style={styles.detailItem}>
                     <Zap size={10} color="#FF6B6B" />
-                    <Text style={styles.detailText}>{player.combo}x combo</Text>
+                    <Text style={styles.detailText}>{player.best_combo}x combo</Text>
                   </View>
                 </View>
               </View>
@@ -167,48 +192,51 @@ export default function LeaderboardScreen() {
               <View style={styles.scoreContainer}>
                 <Text style={[
                   styles.playerScore, 
-                  player.rank <= 3 && styles.topThreeScore,
-                  player.rank === 1 && styles.championScore
+                  (index + 1) <= 3 && styles.topThreeScore,
+                  index === 0 && styles.championScore
                 ]}>
-                  {player.score.toLocaleString()}
+                  {player.best_score.toLocaleString()}
                 </Text>
                 <Text style={styles.pointsLabel}>points</Text>
               </View>
             </LinearGradient>
           </View>
-        ))}
+          ))
+        )}
       </ScrollView>
 
-      <View style={styles.yourScoreContainer}>
-        <LinearGradient
-          colors={['rgba(102, 126, 234, 0.2)', 'rgba(102, 126, 234, 0.1)']}
-          style={styles.yourScore}
-        >
-          <View style={styles.yourScoreHeader}>
-            <Text style={styles.yourScoreLabel}>Your Best Performance</Text>
-            <View style={styles.yourRankBadge}>
-              <Text style={styles.yourRank}>#47</Text>
+      {profile && (
+        <View style={styles.yourScoreContainer}>
+          <LinearGradient
+            colors={['rgba(102, 126, 234, 0.2)', 'rgba(102, 126, 234, 0.1)']}
+            style={styles.yourScore}
+          >
+            <View style={styles.yourScoreHeader}>
+              <Text style={styles.yourScoreLabel}>Your Best Performance</Text>
+              <View style={styles.yourRankBadge}>
+                <Text style={styles.yourRank}>#{userRank || '--'}</Text>
+              </View>
             </View>
-          </View>
-          
-          <View style={styles.yourScoreStats}>
-            <View style={styles.yourStatItem}>
-              <Text style={styles.yourScoreValue}>2,847</Text>
-              <Text style={styles.yourStatLabel}>Score</Text>
+            
+            <View style={styles.yourScoreStats}>
+              <View style={styles.yourStatItem}>
+                <Text style={styles.yourScoreValue}>{profile.best_score.toLocaleString()}</Text>
+                <Text style={styles.yourStatLabel}>Score</Text>
+              </View>
+              <View style={styles.statDivider} />
+              <View style={styles.yourStatItem}>
+                <Text style={styles.yourScoreValue}>Level {profile.best_level}</Text>
+                <Text style={styles.yourStatLabel}>Peak</Text>
+              </View>
+              <View style={styles.statDivider} />
+              <View style={styles.yourStatItem}>
+                <Text style={styles.yourScoreValue}>{profile.best_combo}x</Text>
+                <Text style={styles.yourStatLabel}>Best Combo</Text>
+              </View>
             </View>
-            <View style={styles.statDivider} />
-            <View style={styles.yourStatItem}>
-              <Text style={styles.yourScoreValue}>Level 12</Text>
-              <Text style={styles.yourStatLabel}>Peak</Text>
-            </View>
-            <View style={styles.statDivider} />
-            <View style={styles.yourStatItem}>
-              <Text style={styles.yourScoreValue}>23x</Text>
-              <Text style={styles.yourStatLabel}>Best Combo</Text>
-            </View>
-          </View>
-        </LinearGradient>
-      </View>
+          </LinearGradient>
+        </View>
+      )}
     </LinearGradient>
   );
 }
@@ -440,5 +468,26 @@ const styles = StyleSheet.create({
     width: 1,
     backgroundColor: 'rgba(255, 255, 255, 0.2)',
     marginHorizontal: 8,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 40,
+  },
+  loadingText: {
+    color: 'rgba(255, 255, 255, 0.8)',
+    fontSize: 16,
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 40,
+  },
+  emptyText: {
+    color: 'rgba(255, 255, 255, 0.8)',
+    fontSize: 16,
+    textAlign: 'center',
   },
 });

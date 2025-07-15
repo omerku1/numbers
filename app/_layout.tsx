@@ -1,18 +1,22 @@
-import { useEffect } from 'react';
-import { Stack } from 'expo-router';
+import { Slot } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useFrameworkReady } from '@/hooks/useFrameworkReady';
 import { SettingsProvider } from '@/hooks/useSettings';
+import { AuthProvider } from '@/hooks/useAuth';
+
+if (typeof global.structuredClone !== 'function') {
+  global.structuredClone = (obj) => JSON.parse(JSON.stringify(obj));
+}
 
 export default function RootLayout() {
   useFrameworkReady();
 
   return (
-    <SettingsProvider>
-      <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="+not-found" />
-      </Stack>
-      <StatusBar style="auto" />
-    </SettingsProvider>
+    <AuthProvider>
+      <SettingsProvider>
+        <Slot />
+        <StatusBar style="auto" />
+      </SettingsProvider>
+    </AuthProvider>
   );
 }

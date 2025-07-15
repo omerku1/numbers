@@ -10,17 +10,20 @@ import Animated, {
   interpolate,
   withSpring,
 } from 'react-native-reanimated';
-import { useRouter } from 'expo-router';
-import { useFocusEffect } from '@react-navigation/native';
+import { useRouter, useFocusEffect } from 'expo-router';
 import { Heart, Star, Zap, X, Clock, ArrowLeft } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import { useSettings } from '@/hooks/useSettings';
+import { useAuth } from '@/hooks/useAuth';
+import { useGameScores } from '@/hooks/useGameScores';
 
 const { width } = Dimensions.get('window');
 
 export default function GameScreen() {
   const router = useRouter();
   const { timeLimit, gameMode, setIsGameActive } = useSettings();
+  const { user } = useAuth();
+  const { saveGameScore } = useGameScores();
   const [gameState, setGameState] = useState<'playing' | 'gameOver'>('playing');
   const [score, setScore] = useState(0);
   const [strikes, setStrikes] = useState(0);
@@ -32,6 +35,9 @@ export default function GameScreen() {
   const [timeLeft, setTimeLeft] = useState(5); // Initialize with default, will be updated when timeLimit changes
   const [answerFeedback, setAnswerFeedback] = useState<{ [key: number]: 'correct' | 'incorrect' | null }>({});
   const [showFeedback, setShowFeedback] = useState(false);
+  const [gameStartTime, setGameStartTime] = useState<number>(Date.now());
+  const [totalQuestions, setTotalQuestions] = useState(0);
+  const [correctAnswers, setCorrectAnswers] = useState(0);
   
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const maxStrikes = 3;
@@ -668,6 +674,23 @@ export default function GameScreen() {
     );
   };
 
+  const saveScore = async () => {
+    if (!user) return;
+
+    const gameDuration = Math.floor((Date.now() - gameStartTime) / 1000);
+    
+    await saveGameScore({
+      score,
+      level_reached: level,
+      best_combo: bestCombo,
+      game_mode: gameMode,
+      time_limit: timeLimit,
+      total_questions: totalQuestions,
+      correct_answers: correctAnswers,
+      game_duration: gameDuration,
+    });
+  };
+
   const handleAnswer = (selectedAnswer: number) => {
     if (gameState !== 'playing') return;
 
@@ -684,6 +707,7 @@ export default function GameScreen() {
 
     if (isCorrect) {
       // Correct answer
+      setCorrectAnswers(prev => prev + 1);
       const comboBonus = Math.floor(combo / 5) * 100;
       const levelBonus = level * 25;
       const timeBonus = timeLeft * 10;
@@ -747,13 +771,16 @@ export default function GameScreen() {
       // Check if this is the final strike (game over)
       if (newStrikes >= maxStrikes) {
         // Show feedback for longer before game over
+        setTotalQuestions(prev => prev + 1);
         setTimeout(() => {
           setShowFeedback(false);
           setAnswerFeedback({});
+          saveScore();
           setGameState('gameOver');
         }, 2000); // Show feedback for 2 seconds before game over
       } else {
         // Move to next problem after wrong answer (not game over)
+        setTotalQuestions(prev => prev + 1);
         setTimeout(() => {
           setShowFeedback(false);
           setAnswerFeedback({});
@@ -790,13 +817,16 @@ export default function GameScreen() {
     // Check if this is the final strike (game over)
     if (newStrikes >= maxStrikes) {
       // Show feedback for longer before game over
+      setTotalQuestions(prev => prev + 1);
       setTimeout(() => {
         setShowFeedback(false);
         setAnswerFeedback({});
+        saveScore();
         setGameState('gameOver');
       }, 2000); // Show feedback for 2 seconds before game over
     } else {
       // Move to next problem after time up (not game over)
+      setTotalQuestions(prev => prev + 1);
       setTimeout(() => {
         setShowFeedback(false);
         setAnswerFeedback({});
@@ -852,6 +882,9 @@ export default function GameScreen() {
     setBestCombo(0);
     setAnswerFeedback({});
     setShowFeedback(false);
+    setGameStartTime(Date.now());
+    setTotalQuestions(0);
+    setCorrectAnswers(0);
     
     nextProblem();
     setIsGameActive(true); // Set game as active when starting
@@ -921,6 +954,9 @@ export default function GameScreen() {
               setCombo(0);
               setBestCombo(0); // Reset best combo for new game
               setIsGameActive(true); // Set game as active for new game
+              setGameStartTime(Date.now());
+              setTotalQuestions(0);
+              setCorrectAnswers(0);
               nextProblem();
             }}
           >
