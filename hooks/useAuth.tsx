@@ -79,9 +79,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return { error: { message: 'Username is already taken' } };
       }
 
+      // Set the redirect URL for email confirmation
+      const redirectTo = 'exp://192.168.0.112:8081';
+
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
+        options: {
+          emailRedirectTo: redirectTo,
+        },
       });
 
       if (error) return { error };
